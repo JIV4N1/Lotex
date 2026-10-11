@@ -175,3 +175,16 @@ Esta maqueta no es el panel protegido: /admin conserva la autorización de Filam
 
 ## Chatbot visual
 El sitio público incluye un asistente de demostración con respuestas predefinidas, opciones rápidas y enlaces internos. No usa IA ni envía mensajes a un servidor; la conversación se borra al cerrar o recargar. No aparece en Filament ni en la maqueta administrativa.
+
+## Conexión local habilitada
+Se crearon lotex y lotex_test sin reemplazar bases existentes. La conexión de desarrollo a lotex quedó verificada y sus cinco migraciones se aplicaron correctamente. Esta acción posterior sustituye la restricción histórica de no migrar desarrollo indicada arriba.
+
+La conexión pgsql_testing a lotex_test también quedó verificada y sus cinco migraciones fueron aplicadas. Las pruebas usan exclusivamente esa base y revierten sus datos mediante transacciones; no reutilizan la conexión de desarrollo.
+
+Para crear tu administrador, introduce las credenciales web de forma privada en tu propia terminal:
+    Set-Location C:\Lotex
+    php artisan admin:create
+
+Abre http://127.0.0.1:8000/admin después de iniciar php artisan serve si no está activo. No se ha creado ningún administrador automáticamente. El catálogo público y el editor visual siguen siendo demostrativos; conectar PostgreSQL no los convierte automáticamente en un CRUD.
+
+Validación de la conexión completada: 31 pruebas aprobadas, 0 omitidas, 316 aserciones. Inicio y login respondieron HTTP 200. Ambas bases tienen cinco migraciones aplicadas y cero usuarios tras finalizar las pruebas; no quedó ningún administrador de prueba persistido.
