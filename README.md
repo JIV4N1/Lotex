@@ -165,3 +165,13 @@ php artisan serve --host=127.0.0.1 --port=8000
 
 El comando pide la contraseña oculta y su confirmación. Ese administrador se guarda exclusivamente en lotex_test. Abrir http://127.0.0.1:8000/admin. Detener el servidor con Ctrl+C y ejecutar Remove-Item Env:\DB_CONNECTION para restaurar la selección normal en esa terminal. Las credenciales del administrador web son diferentes de las credenciales de PostgreSQL.
 
+
+## Ampliación visual: ficha y captura administrativa
+La ficha pública incluye un esquema ilustrativo sin escala, ubicación exacta pendiente y documentación pendiente de revisión. No hay documentos oficiales ni coordenadas inventadas.
+
+En entorno local, abre http://127.0.0.1:8000/prototipo/administracion para probar el editor demostrativo. Permite capturar características, condiciones, estados separados, metadatos documentales y seleccionar archivos locales. Generar vista previa muestra los datos y la primera imagen como portada. No se transmite ni guarda información; recargar descarta la captura. No uses documentos personales reales.
+
+Esta maqueta no es el panel protegido: /admin conserva la autorización de Filament y sus estilos separados. La maqueta devuelve 404 fuera del entorno local. El guardado, la carga real, la revisión documental, la conexión a PostgreSQL y el chatbot siguen pendientes.
+
+## Chatbot visual
+El sitio público incluye un asistente de demostración con respuestas predefinidas, opciones rápidas y enlaces internos. No usa IA ni envía mensajes a un servidor; la conversación se borra al cerrar o recargar. No aparece en Filament ni en la maqueta administrativa.

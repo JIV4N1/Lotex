@@ -14,6 +14,7 @@
 <footer class="site-footer"><div class="container"><div class="row gy-4 pb-5">
 <div class="col-md-6"><p class="footer-brand">Horizonte</p><p class="footer-note">El espacio donde comienzan tus ideas.</p><p class="small mt-3">Marca provisional · Puebla, México</p></div>
 <div class="col-6 col-md-3"><p class="eyebrow">Explora</p><a href="{{ route('properties.index') }}">Terrenos</a><a href="{{ route('about') }}">Nosotros</a></div>
-<div class="col-6 col-md-3"><p class="eyebrow">Conversemos</p><a href="{{ route('contact') }}">Contacto demostrativo</a><span class="small">Datos de contacto por confirmar.</span></div>
+<div class="col-6 col-md-3"><p class="eyebrow">Conversemos</p><a href="{{ route('contact') }}">Contacto demostrativo</a><span class="small">Datos de contacto por confirmar.</span>@if(app()->environment('local'))<a class="mt-3" href="{{ route('prototype.admin') }}">Maqueta administrativa · Solo local</a>@endif</div>
 </div><div class="footer-bottom d-flex flex-wrap justify-content-between gap-3"><span>© {{ date('Y') }} Inmobiliaria Horizonte</span><span>Fotografías ilustrativas. No representan terrenos en venta.</span></div></div></footer>
+@unless(request()->routeIs('prototype.*'))<x-chatbot />@endunless
 </body></html>

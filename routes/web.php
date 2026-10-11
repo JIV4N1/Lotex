@@ -8,3 +8,10 @@ Route::get('/terrenos', [PublicSiteController::class, 'index'])->name('propertie
 Route::get('/terrenos/{slug}', [PublicSiteController::class, 'show'])->name('properties.show');
 Route::view('/nosotros', 'about')->name('about');
 Route::get('/contacto', [PublicSiteController::class, 'contact'])->name('contact');
+
+// Local-only design preview. This is not an alternative authentication path to Filament.
+Route::get('/prototipo/administracion', function () {
+    abort_unless(app()->environment('local'), 404);
+
+    return view('prototype.admin');
+})->name('prototype.admin');
