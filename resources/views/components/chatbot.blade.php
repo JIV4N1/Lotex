@@ -25,7 +25,7 @@
         </form>
         <p class="chat-footnote">No introduzcas información personal. Se borra al cerrar.</p>
         <div hidden data-chat-links>
-            <a href="{{ route('properties.index') }}">Explorar catálogo de demostración →</a>
+            <a href="{{ route('properties.index') }}">Explorar catálogo →</a>
             <a href="{{ route('contact') }}">Abrir Contacto demostrativo →</a>
         </div>
     </dialog>

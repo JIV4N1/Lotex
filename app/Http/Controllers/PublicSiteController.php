@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Catalog\DemoCatalog;
-use Illuminate\Http\Request;
+use App\Catalog\PropertyCatalog;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 
 class PublicSiteController extends Controller
 {
-    public function home(DemoCatalog $catalog): View
+    public function home(PropertyCatalog $catalog): View
     {
         return view('home', ['featured' => $catalog->all()->where('featured', true), 'zones' => $catalog->zones()]);
     }
 
-    public function index(Request $request, DemoCatalog $catalog): View|RedirectResponse
+    public function index(Request $request, PropertyCatalog $catalog): View|RedirectResponse
     {
         $validator = Validator::make($request->query(), [
             'zone' => ['nullable', 'string', 'max:100'],
@@ -30,10 +30,15 @@ class PublicSiteController extends Controller
         }
         $filters = $validator->validated();
         $properties = $catalog->all()->filter(function ($property) use ($filters) {
-            if (! empty($filters['zone']) && $property['zone'] !== $filters['zone']) return false;
-            foreach (['min_price' => ['price', true], 'max_price' => ['price', false], 'min_area' => ['area', true], 'max_area' => ['area', false]] as $key => [$field, $minimum]) {
-                if (isset($filters[$key]) && ($minimum ? $property[$field] < $filters[$key] : $property[$field] > $filters[$key])) return false;
+            if (! empty($filters['zone']) && $property['zone'] !== $filters['zone']) {
+                return false;
             }
+            foreach (['min_price' => ['price', true], 'max_price' => ['price', false], 'min_area' => ['area', true], 'max_area' => ['area', false]] as $key => [$field, $minimum]) {
+                if (isset($filters[$key]) && ($minimum ? $property[$field] < $filters[$key] : $property[$field] > $filters[$key])) {
+                    return false;
+                }
+            }
+
             return true;
         });
         $properties = match ($filters['sort'] ?? 'recent') {
@@ -45,7 +50,7 @@ class PublicSiteController extends Controller
         return view('properties.index', compact('properties', 'filters') + ['zones' => $catalog->zones()]);
     }
 
-    public function show(string $slug, DemoCatalog $catalog): View
+    public function show(string $slug, PropertyCatalog $catalog): View
     {
         $property = $catalog->find($slug);
         abort_unless($property, 404);
@@ -53,7 +58,7 @@ class PublicSiteController extends Controller
         return view('properties.show', compact('property') + ['related' => $catalog->all()->where('slug', '!=', $slug)->sortByDesc(fn ($item) => $item['zone'] === $property['zone'])->take(3)]);
     }
 
-    public function contact(Request $request, DemoCatalog $catalog): View
+    public function contact(Request $request, PropertyCatalog $catalog): View
     {
         $slug = $request->query('terreno');
         $property = is_string($slug) ? $catalog->find($slug) : null;

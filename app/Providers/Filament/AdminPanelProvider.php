@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Inmobiliaria Horizonte')
-            ->pages([Dashboard::class])
+            ->pages([Dashboard::class])->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

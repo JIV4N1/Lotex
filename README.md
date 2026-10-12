@@ -1,6 +1,35 @@
 # Inmobiliaria Horizonte
 
-Monolito Laravel 12 + Blade, Bootstrap 5 y Vite, con modelos inmobiliarios y panel Filament restringido a administradores. Incluye un prototipo público navegable: Inicio, catálogo filtrable, detalle con galería, Nosotros y Contacto demostrativo. Los ocho terrenos ficticios están centralizados en `resources/fixtures/properties.php` y se consultan mediante `App\Catalog\DemoCatalog`, sin Eloquent ni PostgreSQL. Las imágenes locales son ilustrativas; su procedencia está en `public/images/demo/SOURCES.md`. Contacto no envía ni guarda información. No hay CRUD ni carga de fotografías.
+Aplicación Laravel 12 + Blade, Bootstrap 5 y Vite. Filament permite administrar terrenos, ubicaciones, fotografías y documentos; el catálogo público consulta los terrenos publicados en PostgreSQL. Las fichas ficticias anteriores se conservan solo como referencia en resources/fixtures/properties.php. La fotografía del hero es ilustrativa y su procedencia está en public/images/demo/SOURCES.md. Contacto y chatbot siguen siendo demostrativos.
+
+## Uso actual: administrar el catálogo
+
+1. Entra en http://127.0.0.1:8000/admin con tu administrador.
+2. Crea primero Estado, Municipio y Zona en las secciones correspondientes. No se pueden eliminar ubicaciones con dependientes, incluso terrenos en la papelera.
+3. En Terrenos → Crear, captura título, clave y slug únicos, descripción, precio MXN, superficie, medidas opcionales, zona, referencia, coordenadas, servicios, acceso, topografía, uso de suelo, resumen documental y condiciones de pago.
+4. Añade fotografías JPG/PNG/WebP de hasta 5 MB, con texto alternativo. Reordénalas para elegir la portada: se usa la primera. Máximo 30 fotografías por terreno.
+5. Añade documentos o planos PDF de hasta 10 MB (máximo 20). Puedes indicar tipo, emisor y fecha. Son privados por defecto. Marca «Autorizar consulta pública» solo para una versión revisada y sin información reservada.
+6. Guarda como Borrador para trabajar en privado o selecciona Publicado para mostrarlo en el catálogo. Disponibilidad (disponible/apartado/vendido) y Destacado son independientes.
+7. Edita desde la tabla. Eliminar mueve el terreno a la papelera y retira su ficha y archivos de las rutas públicas. Filtra por eliminados y usa Restaurar para recuperarlo. No existe una acción de eliminación definitiva.
+
+El sitio consulta App\Catalog\PropertyCatalog y ya no usa fixtures. Un catálogo vacío es normal hasta publicar el primer terreno. Solo los destacados publicados aparecen en la selección de Inicio. La maqueta /prototipo/administracion se conserva como referencia local, pero no guarda datos: usa /admin para trabajar.
+
+### Archivos y permisos
+Las fotografías y documentos se guardan en storage/app/private, con nombres aleatorios. Se sirven mediante rutas que comprueban publicación, borrado lógico y autorización pública del documento. No necesitas storage:link para estos archivos. El panel usa URLs temporales para previsualizar archivos privados. No compartas esas URLs.
+
+Quitar o sustituir un archivo retira su referencia del terreno; los archivos antiguos permanecen en almacenamiento para evitar borrar archivos tras una transacción fallida. La limpieza física de archivos huérfanos no está automatizada. Respalda tanto PostgreSQL como storage/app/private. En el servidor, los límites de PHP/proxy deben permitir los tamaños indicados; no se modificaron servicios del sistema.
+
+Se mantienen los estilos propios de Filament, independientes de Bootstrap. Contacto y chatbot siguen siendo demostrativos y no reciben solicitudes reales.
+
+### Migración de esta etapa
+La migración 2026_10_11_000001_create_property_documents_table añade documentos sin modificar datos existentes. Se aplicó en lotex y lotex_test. Para otra instalación, tras revisar la conexión:
+
+    php artisan migrate --database=pgsql
+    php artisan migrate --database=pgsql_testing
+    php artisan test
+    npm run build
+
+Las pruebas se ejecutan exclusivamente sobre la base separada terminada en _test, usando transacciones. Nunca uses migrate:fresh ni db:wipe en desarrollo.
 
 ## Entorno Windows / PowerShell
 
@@ -188,3 +217,4 @@ Para crear tu administrador, introduce las credenciales web de forma privada en 
 Abre http://127.0.0.1:8000/admin después de iniciar php artisan serve si no está activo. No se ha creado ningún administrador automáticamente. El catálogo público y el editor visual siguen siendo demostrativos; conectar PostgreSQL no los convierte automáticamente en un CRUD.
 
 Validación de la conexión completada: 31 pruebas aprobadas, 0 omitidas, 316 aserciones. Inicio y login respondieron HTTP 200. Ambas bases tienen cinco migraciones aplicadas y cero usuarios tras finalizar las pruebas; no quedó ningún administrador de prueba persistido.
+Validación del CRUD: 33 pruebas aprobadas, 0 omitidas (376 aserciones), compilación Vite correcta y formato PHP aplicado. Se comprobaron en navegador Inicio, catálogo vacío real y redirección al login; el CRUD autenticado se validó mediante pruebas Livewire sobre lotex_test. No se crearon terrenos de demostración en desarrollo.

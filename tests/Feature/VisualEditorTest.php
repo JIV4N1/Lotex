@@ -17,14 +17,4 @@ class VisualEditorTest extends TestCase
         $this->post('/prototipo/administracion', ['title' => 'Example'])->assertStatus(405);
         $this->get('/admin')->assertRedirect('/admin/login');
     }
-
-    public function test_property_discloses_unverified_location_plan_and_documents(): void
-    {
-        $this->get('/terrenos/horizonte-tehuacan')->assertOk()
-            ->assertSee('Esquema sin escala')
-            ->assertSee('Punto exacto pendiente')
-            ->assertSee('Pendiente de revisión')
-            ->assertSee('Frente · 20 m')
-            ->assertDontSee('maps.google.com');
-    }
 }

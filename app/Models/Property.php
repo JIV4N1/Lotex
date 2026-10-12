@@ -52,6 +52,11 @@ class Property extends Model
         return $this->belongsTo(Zone::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(PropertyDocument::class);
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(PropertyImage::class)->orderBy('position')->orderBy('id');

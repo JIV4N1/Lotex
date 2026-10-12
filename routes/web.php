@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PropertyFileController;
 use App\Http\Controllers\PublicSiteController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicSiteController::class, 'home'])->name('home');
 Route::get('/terrenos', [PublicSiteController::class, 'index'])->name('properties.index');
@@ -15,3 +16,6 @@ Route::get('/prototipo/administracion', function () {
 
     return view('prototype.admin');
 })->name('prototype.admin');
+
+Route::get('/archivos/imagenes/{image}', [PropertyFileController::class, 'image'])->whereNumber('image')->name('property-images.show');
+Route::get('/archivos/documentos/{document}', [PropertyFileController::class, 'document'])->whereNumber('document')->name('property-documents.show');

@@ -73,10 +73,10 @@ if (chat) {
     const input = chat.querySelector('#chat-message');
     const links = chat.querySelectorAll('[data-chat-links] a');
     const replies = {
-        terrenos: ['Puedes probar los filtros por zona, precio y superficie en nuestro catálogo. Todas las fichas actuales son ficticias.', 0],
-        documentos: ['La ficha incluye un espacio para documentación revisada. Aún no hay documentos reales disponibles; este asistente no verifica su validez.', null],
+        terrenos: ['Puedes probar los filtros por zona, precio y superficie en nuestro catálogo. Las fichas muestran la información publicada por la administración.', 0],
+        documentos: ['La ficha incluye un espacio para documentación revisada. Consulta los archivos disponibles en cada terreno; este asistente no verifica su validez.', null],
         visita: ['En el futuro podremos orientarte para solicitar una visita. Por ahora, Contacto es una maqueta y no envía solicitudes ni confirma citas.', 1],
-        general: ['Este es un ejemplo visual con respuestas predefinidas. Todavía no puedo interpretar preguntas. Prueba una opción o explora el catálogo de demostración.', 0],
+        general: ['Este es un ejemplo visual con respuestas predefinidas. Todavía no puedo interpretar preguntas. Prueba una opción o explora el catálogo.', 0],
     };
     const bubble = (text, author, linkIndex = null) => {
         const item = document.createElement('div');
