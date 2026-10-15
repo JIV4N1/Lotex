@@ -5,9 +5,9 @@ namespace Tests\Feature;
 use App\Services\ChatCatalog;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Tests\TestCase;
+use Tests\PostgresTestCase;
 
-class ChatTest extends TestCase
+class ChatTest extends PostgresTestCase
 {
     protected function setUp(): void
     {

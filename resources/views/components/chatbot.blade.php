@@ -18,10 +18,11 @@
             <button type="button" data-chat-topic="visita">Coordinar una visita</button>
         </div>
         <details class="chat-privacy">
-            <summary>Privacidad y uso del asistente</summary>
+            <summary>Consultas registradas · Privacidad</summary>
             <div>
                 <p>Se envían tu pregunta y hasta seis preguntas anteriores a Google Gemini. En el nivel gratuito, Google puede usarlas para mejorar sus productos. Evita compartir datos personales.</p>
-                <p>El historial local se borra al cerrar; esto no elimina los datos ya enviados a Google.</p>
+                <p>Horizonte registra cada pregunta y su respuesta para revisar la calidad del asistente. Solo los administradores pueden consultarlas durante {{ config('chat.retention_days') }} días. Evita incluir nombres, teléfonos o información privada.</p>
+                <p>Al cerrar con × se borra el historial de esta pantalla, no el registro del servicio ni los datos ya enviados a Google.</p>
                 <p>Este asistente con IA consulta el catálogo publicado. No ofrece atención humana, reserva visitas ni verifica la validez de documentos.</p>
                 <a href="https://ai.google.dev/gemini-api/terms" target="_blank" rel="noopener noreferrer">Condiciones de Gemini ↗</a>
             </div>

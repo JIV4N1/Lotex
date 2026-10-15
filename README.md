@@ -1,4 +1,4 @@
-# Inmobiliaria Horizonte
+# Horizonte
 
 Aplicación Laravel 12 + Blade, Bootstrap 5 y Vite. Filament permite administrar terrenos, ubicaciones, fotografías y documentos; el catálogo público consulta los terrenos publicados en PostgreSQL. Las fichas ficticias anteriores se conservan solo como referencia en resources/fixtures/properties.php. La fotografía del hero es ilustrativa y su procedencia está en public/images/demo/SOURCES.md. Contacto guarda consultas y el chatbot está integrado con Gemini.
 
@@ -316,3 +316,20 @@ Los asesores admiten una fotografía JPG, PNG o WebP de hasta 5 MB. Los archivos
 ### Consultas de Contacto
 `/contacto` guarda nombre, teléfono, correo opcional y mensaje. La referencia opcional se valida contra terrenos publicados. Usa CSRF, límite de cinco intentos por minuto, campo antispam y token único para evitar duplicados al reenviar. La confirmación se muestra después de guardar.
 En `/admin/mensajes`, los administradores pueden leer consultas, filtrar por Nuevo/En atención/Resuelto, registrar notas internas y abrir WhatsApp. No se envían correos ni respuestas automáticas; las notas no llegan al cliente. La bandeja es independiente de las solicitudes de visita. Aplicar la migración `2026_10_15_000001_create_contact_messages_table.php` en cada entorno antes de usarla.
+
+### Monitor del chatbot
+
+En `/admin/chatbot` (menú **Chatbot · Gemini**) los administradores pueden consultar preguntas nuevas, respuesta textual, ficha abierta, modelo, resultado, estado HTTP, duración y tokens reportados por Gemini. La lista admite filtros por resultado y fecha, paginación y detalle de solo lectura. Las tarjetas resumen todos los registros retenidos; no cambian con los filtros de la lista.
+
+Aplicar `php artisan migrate` en desarrollo y `php artisan migrate --database=pgsql_testing` en la base separada de pruebas. La migración `2026_10_15_000002_create_chat_interactions_table` solo crea la nueva tabla. No se recupera historial anterior ni se recopilan IP, identificadores de sesión o copias del historial enviado al proveedor. Las preguntas y respuestas usan cifrado de Laravel con APP_KEY: respaldarla de forma segura y no regenerarla sobre estos datos. No hay búsqueda por texto porque se conserva cifrado.
+
+`CHAT_RETENTION_DAYS=30` limita la ventana visible (1–365 días). La eliminación física está programada diariamente mediante el scheduler de Laravel: ejecutar `php artisan schedule:work` mientras se desarrolla o configurar `schedule:run` cada minuto en el entorno definitivo. Para limpiar manualmente los registros vencidos: `php artisan model:prune --model="App\Models\ChatInteraction"`. No se instaló ningún servicio ni tarea del sistema. Sin scheduler no se ejecuta la eliminación física automática; los registros vencidos sí dejan de mostrarse. La retención de respaldos debe gestionarse por separado.
+
+Se registran intentos que llegan a la llamada a Gemini; validaciones, falta de clave y bloqueos previos por límite no generan consultas. La cuota local incluye intentos fallidos y utiliza el día de `config('app.timezone')`; reiniciar/borrar la caché reinicia ese contador. El total de tokens proviene de `usageMetadata.totalTokenCount`, no de sumar entrada y salida (puede incluir otros tokens). La falta de métricas se muestra explícitamente. No representa facturación, llamadas de otras aplicaciones, uso de `gemini:check` ni una cuota oficial de Google. La integración se verifica con respuestas simuladas en pruebas, sin gastar cuota real.
+
+Referencia de métricas: https://ai.google.dev/api/generate-content#UsageMetadata
+
+### Seguridad y publicación
+El despliegue preparado para VPS/Easypanel está documentado en [docs/deployment.md](docs/deployment.md). Incluye Dockerfile, compilación de recursos, PHP 8.4 con OPcache, volumen persistente y plantilla de variables sin secretos en `deploy/production.env.example`. No modifica tu entorno local ni publica automáticamente; faltan crear el servicio y configurar el dominio HTTPS.
+
+Consulta `docs/security-review.md` para los controles revisados y pendientes de despliegue. Ejecuta `php artisan security:check` para comprobar flags de producción sin revelar secretos. El entorno local no equivale a una aprobación para publicar.

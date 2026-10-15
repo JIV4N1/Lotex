@@ -1,9 +1,9 @@
 <header class="site-header">
     <nav class="navbar navbar-expand-md py-3" aria-label="Navegación principal">
         <div class="container">
-            <a class="navbar-brand" href="{{ route('home') }}" aria-label="Inmobiliaria Horizonte, Inicio">
+            <a class="navbar-brand" href="{{ route('home') }}" aria-label="Horizonte, Inicio">
                 <svg class="brand-symbol" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M3 31h34M5 25 20 9l15 16M12 25l8-8 8 8" stroke="currentColor" stroke-width="1.5"/></svg>
-                <span class="brand-name"><span class="brand-label">Inmobiliaria</span>Horizonte</span>
+                <span class="brand-name">Horizonte</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#public-navigation" aria-controls="public-navigation" aria-expanded="false" aria-label="Abrir o cerrar navegación"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="public-navigation">

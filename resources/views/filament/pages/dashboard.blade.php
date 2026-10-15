@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <section class="hz-welcome">
-        <div><span class="hz-eyebrow">INMOBILIARIA HORIZONTE</span><h2>Tu equipo, con todo a la vista.</h2><p>Administra los terrenos y acompaña cada solicitud hasta su próxima visita.</p></div>
+        <div><span class="hz-eyebrow">HORIZONTE</span><h2>Tu equipo, con todo a la vista.</h2><p>Administra los terrenos y acompaña cada solicitud hasta su próxima visita.</p></div>
         <a class="hz-action" href="{{ \App\Filament\Resources\PropertyResource::getUrl('create') }}">+ Dar de alta un terreno</a>
     </section>
     <div class="hz-stats" aria-label="Resumen de actividad">

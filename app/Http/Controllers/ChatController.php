@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Services\ChatCatalog;
 use App\Services\GeminiChat;
+use App\Services\ChatTelemetry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Throwable;
 
 class ChatController extends Controller
 {
-    public function __invoke(Request $request, GeminiChat $gemini, ChatCatalog $catalog)
+    public function __invoke(Request $request, GeminiChat $gemini, ChatCatalog $catalog, ChatTelemetry $telemetry)
     {
         $data = $request->validate([
             'message' => ['required', 'string', 'max:500'],
@@ -22,6 +23,10 @@ class ChatController extends Controller
             return response()->json(['message' => 'El asistente aún no está configurado. Puedes usar el catálogo mientras tanto.'], 503);
         }
         // Shared file lock makes the daily ceiling atomic even for concurrent visitors.
+        $called = false;
+        $status = 'error';
+        $answer = null;
+        $started = hrtime(true);
         try {
             $allowed = Cache::lock('chat-budget-lock', 5)->block(2, function () {
                 $key = 'chat-budget-'.now()->format('Y-m-d');
@@ -36,12 +41,20 @@ class ChatController extends Controller
             if (! $allowed) {
                 return response()->json(['message' => 'Alcanzamos el límite diario del asistente. Puedes continuar en el catálogo.'], 429);
             }
+            $called = true;
             $filters = $gemini->interpret([...($data['history'] ?? []), $data['message']], ! empty($data['property_slug']));
+            $result = $catalog->answer($filters, $data['property_slug'] ?? null);
+            $answer = $result['message'];
+            $status = 'success';
 
-            return response()->json($catalog->answer($filters, $data['property_slug'] ?? null))->header('Cache-Control', 'no-store');
+            return response()->json($result)->header('Cache-Control', 'no-store');
         } catch (Throwable $exception) {
             // Do not log chat messages, API keys or raw provider/database errors.
             return response()->json(['message' => 'No pude consultar el asistente en este momento. Inténtalo más tarde o explora el catálogo.'], 503);
+        } finally {
+            if ($called) {
+                $telemetry->record($data, $gemini->usage, $status, $answer, (int) ((hrtime(true) - $started) / 1000000));
+            }
         }
     }
 }

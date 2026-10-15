@@ -190,4 +190,9 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
 .advisor-photo{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;object-position:center;background:#e1e6d7}
 
 .chat-header{padding:12px 16px}.chat-messages{padding:12px 16px}.chat-bubble{padding:10px 12px;font-size:.8rem}.chat-suggestions{padding:0 12px 8px;gap:5px}.chat-suggestions button{padding:5px 8px;font-size:.66rem;min-height:32px}.chat-privacy{padding:0 16px 6px}.chat-privacy>div{max-height:90px;overflow-y:auto;overscroll-behavior:contain}.chat-form{padding:10px 12px}.chat-fallback{flex-shrink:0}
-@media(prefers-reduced-motion:reduce){.chat-dialog,.chat-launcher,.chat-bubble{animation:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.chat-close,.chat-suggestions button,.chat-form button{min-width:44px;min-height:44px}
+.chat-header,.chat-suggestions,.chat-form{flex-shrink:0}
+.chat-bubble,.chat-property{overflow-wrap:anywhere}
+.thumbnails{overflow-x:auto;max-width:100%;padding-bottom:6px}.thumbnail{flex-shrink:0}
+@media(max-width:575.98px){.row.g-5{--bs-gutter-x:1.5rem}.contact-form{padding:1.25rem}.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-list>div{grid-template-columns:1fr;gap:.35rem}}

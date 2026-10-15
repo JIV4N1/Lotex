@@ -15,11 +15,11 @@
             @forelse($advisors as $advisor)
                 <div class="col-md-4"><article class="advisor-card h-100">
                     @if($advisor->photo_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($advisor->photo_path))
-                        <img class="advisor-photo" src="{{ route('advisor-photo.show', $advisor) }}" alt="{{ $advisor->name }}, asesor de Inmobiliaria Horizonte" loading="lazy" width="480" height="480">
+                        <img class="advisor-photo" src="{{ route('advisor-photo.show', $advisor) }}" alt="{{ $advisor->name }}, asesor de Horizonte" loading="lazy" width="480" height="480">
                     @else
                         <div class="advisor-portrait" aria-hidden="true"><svg viewBox="0 0 240 220" fill="none"><circle cx="120" cy="83" r="29" fill="currentColor" opacity=".25"/><path d="M61 177c0-34 26-58 59-58s59 24 59 58" fill="currentColor" opacity=".25"/></svg><span>Fotografía por incorporar</span></div>
                     @endif
-                    <div class="advisor-copy"><p class="eyebrow muted mb-2">Asesoría inmobiliaria</p><h3>{{ $advisor->name }}</h3>
+                    <div class="advisor-copy"><p class="eyebrow muted mb-2">Asesoría en terrenos</p><h3>{{ $advisor->name }}</h3>
                     @if($advisor->areas)<p><strong>Zonas:</strong> {{ $advisor->areas }}</p>@endif
                     @if($advisor->bio)<p class="muted mb-0">{{ $advisor->bio }}</p>@endif
                     </div>

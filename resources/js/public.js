@@ -96,6 +96,8 @@ if (chat) {
         bubble(text, 'Tú');
         input.value = '';
         status.textContent = 'Consultando terrenos…';
+        status.tabIndex = -1;
+        status.focus({preventScroll: true});
         messages.setAttribute('aria-busy', 'true');
         const timeout = setTimeout(() => controller.abort(), 35000);
         try {
@@ -140,7 +142,7 @@ if (chat) {
                 input.disabled = false;
                 messages.setAttribute('aria-busy', 'false');
                 status.textContent = '';
-                if (dialog.open) input.focus();
+                if (dialog.open && dialog.contains(document.activeElement)) input.focus({preventScroll: true});
             }
         }
     };
