@@ -41,8 +41,8 @@ class PublicPrototypeTest extends PostgresTestCase
     {
         $p = $this->makeProperty();
         $this->get('/terrenos?max_price=invalid')->assertRedirect('/terrenos')->assertSessionHasErrors('max_price');
-        $this->get('/contacto?terreno='.$p->slug)->assertOk()->assertSee($p->code)->assertSee('no envía ni guarda');
-        $this->post('/contacto', ['name' => 'test'])->assertStatus(405);
-        $this->get('/contacto?terreno=unknown')->assertSee('Consulta general');
+        $this->get('/contacto?terreno='.$p->slug)->assertOk()->assertSee($p->code)->assertSee('Enviar mensaje');
+        $this->post('/contacto', ['name' => 'test'])->assertSessionHasErrors(['phone', 'message']);
+        $this->get('/contacto?terreno=unknown')->assertSee('Envíanos tu consulta');
     }
 }

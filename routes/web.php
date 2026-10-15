@@ -26,3 +26,5 @@ Route::get('/archivos/imagenes/{image}', [PropertyFileController::class, 'image'
 Route::get('/archivos/documentos/{document}', [PropertyFileController::class, 'document'])->whereNumber('document')->name('property-documents.show');
 
 Route::get('/archivos/asesores/{advisor}', [PropertyFileController::class, 'advisorPhoto'])->whereNumber('advisor')->name('advisor-photo.show');
+
+Route::post('/contacto', [\App\Http\Controllers\ContactMessageController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');

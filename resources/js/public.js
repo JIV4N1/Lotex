@@ -145,12 +145,67 @@ if (chat) {
         }
     };
     launcher.hidden = false;
-    launcher.addEventListener('click', () => dialog.showModal());
-    chat.querySelector('.chat-close').addEventListener('click', () => dialog.close());
+    launcher.setAttribute('aria-expanded', 'false');
+
+    // ── Minimize vs Full-close ─────────────────────────────────────
+    // isMinimizing = true  → oculta el dialog SIN resetear nada
+    // isMinimizing = false → cierre real (botón ×): resetea todo
+    let isMinimizing = false;
+    let savedDraft = '';   // guarda lo que el usuario estaba escribiendo
+
+    let restoreFocus = true;
+    const animatedClose = (minimize, returnFocus = true) => {
+        if (!dialog.open) return;
+        isMinimizing = minimize;
+        restoreFocus = returnFocus;
+        dialog.close();
+    };
+
+    // Abrir / reabrir
+    launcher.addEventListener('click', () => {
+        // Si hay borrador guardado lo restauramos al reabrir tras minimizar
+        if (savedDraft) {
+            input.value = savedDraft;
+            savedDraft = '';
+        }
+        if (dialog.open) { animatedClose(true); return; }
+        dialog.show();
+        launcher.setAttribute('aria-expanded', 'true');
+        input.focus({preventScroll: true});
+    });
+
+    // Botón × → cierre completo con reset
+    chat.querySelector('.chat-close').addEventListener('click', () => animatedClose(false));
+
+    // Non-modal dialogs do not receive clicks outside their bounds.
+    document.addEventListener('pointerdown', (event) => {
+        if (dialog.open && !dialog.contains(event.target) && !launcher.contains(event.target)) {
+            animatedClose(true, false);
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (dialog.open && event.key === 'Escape') {
+            event.preventDefault();
+            animatedClose(true);
+        }
+    });
+
+    // Manejador del evento 'close' nativo del <dialog>
     dialog.addEventListener('close', () => {
+        launcher.setAttribute('aria-expanded', 'false');
+        if (isMinimizing) {
+            // ── Minimizado: conservar estado ──────────────────────
+            // Guardamos el borrador que el usuario estaba escribiendo
+            savedDraft = input.value;
+            // Devolver foco al launcher sin ningún otro reset
+            if (restoreFocus) launcher.focus({preventScroll: true});
+            return;
+        }
+        // ── Cierre real: reset completo ───────────────────────────
         pending?.abort();
         pending = null;
         history = [];
+        savedDraft = '';
         controls.forEach(button => button.disabled = false);
         input.disabled = false;
         messages.setAttribute('aria-busy', 'false');
@@ -159,6 +214,7 @@ if (chat) {
         status.textContent = '';
         launcher.focus();
     });
+
     const questions = {terrenos: 'Muéstrame terrenos publicados', documentos: '¿Qué documentación tiene este terreno?', visita: '¿Cómo coordino una visita?'};
     chat.querySelectorAll('[data-chat-topic]').forEach(button => button.addEventListener('click', () => send(questions[button.dataset.chatTopic])));
     chat.querySelector('form').addEventListener('submit', event => {

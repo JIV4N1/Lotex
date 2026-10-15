@@ -1,6 +1,6 @@
 # Inmobiliaria Horizonte
 
-Aplicación Laravel 12 + Blade, Bootstrap 5 y Vite. Filament permite administrar terrenos, ubicaciones, fotografías y documentos; el catálogo público consulta los terrenos publicados en PostgreSQL. Las fichas ficticias anteriores se conservan solo como referencia en resources/fixtures/properties.php. La fotografía del hero es ilustrativa y su procedencia está en public/images/demo/SOURCES.md. Contacto y chatbot siguen siendo demostrativos.
+Aplicación Laravel 12 + Blade, Bootstrap 5 y Vite. Filament permite administrar terrenos, ubicaciones, fotografías y documentos; el catálogo público consulta los terrenos publicados en PostgreSQL. Las fichas ficticias anteriores se conservan solo como referencia en resources/fixtures/properties.php. La fotografía del hero es ilustrativa y su procedencia está en public/images/demo/SOURCES.md. Contacto guarda consultas y el chatbot está integrado con Gemini.
 
 ## Uso actual: administrar el catálogo
 
@@ -19,7 +19,7 @@ Las fotografías y documentos se guardan en storage/app/private, con nombres ale
 
 Quitar o sustituir un archivo retira su referencia del terreno; los archivos antiguos permanecen en almacenamiento para evitar borrar archivos tras una transacción fallida. La limpieza física de archivos huérfanos no está automatizada. Respalda tanto PostgreSQL como storage/app/private. En el servidor, los límites de PHP/proxy deben permitir los tamaños indicados; no se modificaron servicios del sistema.
 
-Se mantienen los estilos propios de Filament, independientes de Bootstrap. Contacto y chatbot siguen siendo demostrativos y no reciben solicitudes reales.
+Se mantienen los estilos propios de Filament, independientes de Bootstrap. Contacto guarda consultas en la bandeja de Mensajes y el chatbot consulta el catálogo mediante Gemini.
 
 ### Migración de esta etapa
 La migración 2026_10_11_000001_create_property_documents_table añade documentos sin modificar datos existentes. Se aplicó en lotex y lotex_test. Para otra instalación, tras revisar la conexión:
@@ -257,7 +257,7 @@ Abre http://127.0.0.1:8000 y pulsa «¿Te orientamos?». Acepta el aviso de env�
 - Sin casilla de aceptación; el aviso desplegable de privacidad explica el envío a Google y el uso de contenido en el nivel gratuito. No introduzcas datos personales en el chat. El historial solo vive en memoria del navegador y se borra al cerrar o recargar; esto no borra datos ya enviados a Google. La aplicación no registra conversaciones ni cuerpos de errores del proveedor.
 - POST /chat usa CSRF y máximo seis solicitudes por minuto por IP. Hay un presupuesto global de 100 intentos diarios configurable, con bloqueo atómico en caché (incluye fallos, para limitar consumo). Mantén CACHE_STORE=file en este despliegue de una instancia; no borres la caché para reiniciar cuotas. Para varias instancias, utiliza una caché compartida con locks. El límite local no sustituye los límites y controles de facturación de Google.
 - Clave ausente, timeout, cuota agotada o respuesta inválida muestran una indisponibilidad real y conservan un enlace al catálogo. No hay cambio automático a un modelo de pago ni reintentos automáticos.
-- Contacto sigue siendo demostrativo: no almacena interesados, no hay atención humana en vivo y no se confirman visitas. La documentación solo se consulta desde las fichas; el bot no certifica validez legal.
+- Contacto guarda consultas generales en Mensajes; no hay atención humana en vivo ni confirmación automática de visitas. La documentación solo se consulta desde las fichas; el bot no certifica validez legal.
 
 ### Verificación
 
@@ -291,7 +291,7 @@ Los responsables son las cuentas existentes con is_admin=true. Para incorporar a
 
 El servidor ignora intentos públicos de elegir propiedad por ID, responsable o estado. Hay CSRF, validación de teléfono, campo antispam y límite de cinco envíos por minuto por IP. Un token evita reenvíos del mismo formulario y se evita crear otra solicitud para el mismo WhatsApp/terreno durante 24 horas. La bandeja es privada; los datos del cliente no se envían a Gemini. Las solicitudes siguen disponibles cuando el terreno se elimina lógicamente. Si dos personas editan el mismo registro, la segunda debe recargar antes de guardar para no sobrescribir el cambio anterior.
 
-El formulario general de Contacto continúa demostrativo. La nueva captura real está en la ficha de cada terreno. No se asignan responsables ni citas automáticamente.
+El formulario general de Contacto guarda consultas en Mensajes. Las solicitudes de visita se capturan desde cada terreno y llegan a Interesados. No se asignan responsables ni citas automáticamente.
 
 El chat usa la ficha abierta para responder solo los aspectos solicitados, sin repetir tarjetas. Gemini recibe un indicador de contexto, no los datos de la propiedad.
 
@@ -312,3 +312,7 @@ Abre http://127.0.0.1:8000. Si necesitas mantener otro servidor, añade `-Port 8
 El catálogo aplica filtros y orden en PostgreSQL; las zonas se consultan sin cargar el inventario y los relacionados se limitan a tres antes de recuperarlos. No se guardan resultados del catálogo en caché, por lo que la publicación y los cambios administrativos se reflejan inmediatamente.
 
 Los asesores admiten una fotografía JPG, PNG o WebP de hasta 5 MB. Los archivos se guardan en almacenamiento privado y se sirven únicamente para perfiles publicados. Puedes reemplazar o quitar la fotografía al editar; quitarla no borra automáticamente el archivo anterior del almacenamiento.
+
+### Consultas de Contacto
+`/contacto` guarda nombre, teléfono, correo opcional y mensaje. La referencia opcional se valida contra terrenos publicados. Usa CSRF, límite de cinco intentos por minuto, campo antispam y token único para evitar duplicados al reenviar. La confirmación se muestra después de guardar.
+En `/admin/mensajes`, los administradores pueden leer consultas, filtrar por Nuevo/En atención/Resuelto, registrar notas internas y abrir WhatsApp. No se envían correos ni respuestas automáticas; las notas no llegan al cliente. La bandeja es independiente de las solicitudes de visita. Aplicar la migración `2026_10_15_000001_create_contact_messages_table.php` en cada entorno antes de usarla.
