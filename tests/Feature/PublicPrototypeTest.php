@@ -11,8 +11,8 @@ class PublicPrototypeTest extends PostgresTestCase
 
     public function test_public_pages_use_published_database_records_and_handle_empty_catalog(): void
     {
-        foreach (['/', '/terrenos', '/nosotros', '/contacto'] as $path) {
-            $this->get($path)->assertOk();
+        foreach (['/', '/terrenos', '/nosotros', '/contacto', '/asesores'] as $path) {
+            $this->get($path)->assertOk()->assertSee(route('advisors'), false)->assertDontSee('href="/admin"', false)->assertDontSee('Datos de contacto por confirmar.');
         }
         $this->get('/terrenos')->assertSee('No encontramos un terreno');
         $property = $this->makeProperty();

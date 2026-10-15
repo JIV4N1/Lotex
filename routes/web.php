@@ -13,6 +13,7 @@ Route::get('/terrenos', [PublicSiteController::class, 'index'])->name('propertie
 Route::get('/terrenos/{slug}', [PublicSiteController::class, 'show'])->name('properties.show');
 Route::post('/terrenos/{slug}/visitas', [VisitRequestController::class, 'store'])->middleware('throttle:5,1')->name('visits.store');
 Route::view('/nosotros', 'about')->name('about');
+Route::view('/asesores', 'advisors')->name('advisors');
 Route::get('/contacto', [PublicSiteController::class, 'contact'])->name('contact');
 
 // Local-only design preview. This is not an alternative authentication path to Filament.

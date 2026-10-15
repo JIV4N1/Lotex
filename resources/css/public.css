@@ -196,3 +196,4 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
 .chat-bubble,.chat-property{overflow-wrap:anywhere}
 .thumbnails{overflow-x:auto;max-width:100%;padding-bottom:6px}.thumbnail{flex-shrink:0}
 @media(max-width:575.98px){.row.g-5{--bs-gutter-x:1.5rem}.contact-form{padding:1.25rem}.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-list>div{grid-template-columns:1fr;gap:.35rem}}
+.about-landscape{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:8px}
