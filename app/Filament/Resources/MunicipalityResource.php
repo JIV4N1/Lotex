@@ -16,6 +16,12 @@ use Illuminate\Validation\Rules\Unique;
 
 class MunicipalityResource extends Resource
 {
+    protected static string|\UnitEnum|null $navigationGroup = 'Ubicaciones';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-building-office-2';
+
+    protected static ?int $navigationSort = 4;
+
     protected static ?string $model = Municipality::class;
 
     protected static ?string $modelLabel = 'municipio';

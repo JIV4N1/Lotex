@@ -202,8 +202,8 @@ En entorno local, abre http://127.0.0.1:8000/prototipo/administracion para proba
 
 Esta maqueta no es el panel protegido: /admin conserva la autorización de Filament y sus estilos separados. La maqueta devuelve 404 fuera del entorno local. El guardado, la carga real, la revisión documental, la conexión a PostgreSQL y el chatbot siguen pendientes.
 
-## Chatbot visual
-El sitio público incluye un asistente de demostración con respuestas predefinidas, opciones rápidas y enlaces internos. No usa IA ni envía mensajes a un servidor; la conversación se borra al cerrar o recargar. No aparece en Filament ni en la maqueta administrativa.
+## Chatbot visual (etapa anterior)
+La maqueta de respuestas predefinidas fue sustituida por la integración Gemini descrita al final de este documento.
 
 ## Conexión local habilitada
 Se crearon lotex y lotex_test sin reemplazar bases existentes. La conexión de desarrollo a lotex quedó verificada y sus cinco migraciones se aplicaron correctamente. Esta acción posterior sustituye la restricción histórica de no migrar desarrollo indicada arriba.
@@ -218,3 +218,97 @@ Abre http://127.0.0.1:8000/admin después de iniciar php artisan serve si no est
 
 Validación de la conexión completada: 31 pruebas aprobadas, 0 omitidas, 316 aserciones. Inicio y login respondieron HTTP 200. Ambas bases tienen cinco migraciones aplicadas y cero usuarios tras finalizar las pruebas; no quedó ningún administrador de prueba persistido.
 Validación del CRUD: 33 pruebas aprobadas, 0 omitidas (376 aserciones), compilación Vite correcta y formato PHP aplicado. Se comprobaron en navegador Inicio, catálogo vacío real y redirección al login; el CRUD autenticado se validó mediante pruebas Livewire sobre lotex_test. No se crearon terrenos de demostración en desarrollo.
+
+
+## Asistente Gemini: configuración y funcionamiento actual
+
+El chat público usa Laravel y la API REST de Gemini. No requiere paquetes nuevos ni migraciones. Google AI Plus y el almacenamiento de Google One no determinan la cuota de este proyecto de API: verifica el plan y la facturación en Google AI Studio. No se activa facturación desde la aplicación.
+
+1. En https://aistudio.google.com/api-keys crea una clave en un proyecto propio. Para empezar gratis, comprueba el nivel gratuito de ese proyecto. No compartas la clave ni la subas a Git.
+2. Completa localmente `C:\Lotex\.env`:
+
+```dotenv
+GEMINI_API_KEY=tu_clave_privada
+GEMINI_MODEL=gemini-3.5-flash-lite
+CHAT_DAILY_LIMIT=100
+```
+
+El modelo predeterminado figura en la documentación oficial como estable y con nivel gratuito a la fecha de esta integración. Su disponibilidad y cuota dependen de Google y del proyecto; el nombre se puede cambiar sin editar código. No utilices un prefijo VITE_ para la clave.
+
+3. En PowerShell:
+
+```powershell
+Set-Location C:\Lotex
+php artisan config:clear
+php artisan gemini:check
+npm run build
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+El comando `gemini:check` realiza una llamada real con una pregunta genérica y comprueba el presupuesto interpretado, sin consultar terrenos ni mostrar credenciales. Consume una solicitud de la cuota de Google; es independiente del límite diario del chat web.
+
+Abre http://127.0.0.1:8000 y pulsa «¿Te orientamos?». Acepta el aviso de envío a Gemini y prueba «Terrenos en Tehuacán de hasta un millón de pesos» y «¿Y con al menos 500 metros cuadrados?». Desde una ficha puedes preguntar por sus servicios, precio y medidas.
+
+### Alcance y protección de datos
+
+- Gemini recibe la pregunta y hasta seis preguntas anteriores. No recibe filas de PostgreSQL, documentos, archivos, contraseñas ni datos de administradores. La API interpreta intención y filtros; Laravel consulta únicamente terrenos publicados y no eliminados y compone la respuesta con datos reales. Las respuestas no son prosa libre generada por IA.
+- Búsqueda por nombre exacto (sin distinguir mayúsculas) de zona, municipio o estado, rango de precio/superficie y disponibilidad. Muestra como máximo cuatro coincidencias por menor precio. Una clave, slug o título exacto permite consultar una propiedad; la ficha abierta proporciona contexto para preguntas de detalle. No resuelve referencias ordinales como «el segundo» ni búsquedas semánticas por características arbitrarias.
+- El texto se renderiza como texto, nunca HTML del modelo. Los enlaces se generan en Laravel y se limitan a fichas internas. Consultas parametrizadas; el modelo no ejecuta SQL, no edita registros ni recibe acceso administrativo.
+- Sin casilla de aceptación; el aviso desplegable de privacidad explica el envío a Google y el uso de contenido en el nivel gratuito. No introduzcas datos personales en el chat. El historial solo vive en memoria del navegador y se borra al cerrar o recargar; esto no borra datos ya enviados a Google. La aplicación no registra conversaciones ni cuerpos de errores del proveedor.
+- POST /chat usa CSRF y máximo seis solicitudes por minuto por IP. Hay un presupuesto global de 100 intentos diarios configurable, con bloqueo atómico en caché (incluye fallos, para limitar consumo). Mantén CACHE_STORE=file en este despliegue de una instancia; no borres la caché para reiniciar cuotas. Para varias instancias, utiliza una caché compartida con locks. El límite local no sustituye los límites y controles de facturación de Google.
+- Clave ausente, timeout, cuota agotada o respuesta inválida muestran una indisponibilidad real y conservan un enlace al catálogo. No hay cambio automático a un modelo de pago ni reintentos automáticos.
+- Contacto sigue siendo demostrativo: no almacena interesados, no hay atención humana en vivo y no se confirman visitas. La documentación solo se consulta desde las fichas; el bot no certifica validez legal.
+
+### Verificación
+
+```powershell
+php artisan test --filter=Chat
+php artisan test
+npm run build
+```
+
+Las pruebas de Gemini usan HTTP simulado y nunca la clave real. Las pruebas del catálogo usan exclusivamente pgsql_testing y transacciones, sin borrar datos de desarrollo. `gemini:check` es la comprobación real independiente.
+
+Fuentes oficiales: https://ai.google.dev/gemini-api/docs/models, https://ai.google.dev/gemini-api/docs/structured-output, https://ai.google.dev/gemini-api/docs/pricing y https://ai.google.dev/gemini-api/docs/billing.
+
+## Solicitudes de visita e interesados
+
+En cada ficha publicada que no esté vendida, «Quiero visitar este terreno» abre un formulario de nombre y WhatsApp. La referencia se obtiene en el servidor desde la URL. El envío crea una solicitud real en PostgreSQL como **Nuevo · Sin asignar**. La confirmación significa recepción de la solicitud; el horario se acuerda posteriormente. No se envían mensajes de WhatsApp automáticamente.
+
+Migración adicional (sin limpiar bases ni reemplazar datos):
+
+```powershell
+Set-Location C:\Lotex
+php artisan migrate --database=pgsql_testing --path=database/migrations/2026_10_13_000001_create_visit_requests_table.php
+php artisan test --filter=VisitRequestTest
+php artisan migrate --database=pgsql --path=database/migrations/2026_10_13_000001_create_visit_requests_table.php
+npm run build
+```
+
+Abre http://127.0.0.1:8000/admin/interesados con una cuenta administradora. La bandeja muestra cliente, WhatsApp, clave/terreno, estado, responsable y fechas. Filtra por estado, responsable o Sin asignar. En Seguimiento elige un responsable, registra notas y cambia el estado entre Nuevo, Contactado, Cita confirmada y Cerrado. Contactado exige responsable; Cita confirmada exige responsable y fecha. El horario se captura y muestra en America/Mexico_City y se guarda en UTC. Cerrado representa final del seguimiento; no calcula comisiones ni acredita una venta.
+
+Los responsables son las cuentas existentes con is_admin=true. Para incorporar a un integrante autorizado utiliza `php artisan admin:create` desde tu terminal; estas cuentas también tienen acceso al resto del panel. No se han creado usuarios ni asesores ficticios. La acción WhatsApp abre una conversación preparada con el cliente; el asesor decide enviarla. Los mensajes no se sincronizan con el panel.
+
+El servidor ignora intentos públicos de elegir propiedad por ID, responsable o estado. Hay CSRF, validación de teléfono, campo antispam y límite de cinco envíos por minuto por IP. Un token evita reenvíos del mismo formulario y se evita crear otra solicitud para el mismo WhatsApp/terreno durante 24 horas. La bandeja es privada; los datos del cliente no se envían a Gemini. Las solicitudes siguen disponibles cuando el terreno se elimina lógicamente. Si dos personas editan el mismo registro, la segunda debe recargar antes de guardar para no sobrescribir el cambio anterior.
+
+El formulario general de Contacto continúa demostrativo. La nueva captura real está en la ficha de cada terreno. No se asignan responsables ni citas automáticamente.
+
+El chat usa la ficha abierta para responder solo los aspectos solicitados, sin repetir tarjetas. Gemini recibe un indicador de contexto, no los datos de la propiedad.
+
+### Asesores del sitio público
+En `/admin/asesores` se administran nombre, zonas de atención, presentación, orden y publicación. Los perfiles nuevos están ocultos por defecto; al activar «Mostrar en el sitio público» aparecen en Inicio y Terrenos. Eliminar un perfil requiere confirmación. Estos perfiles no crean usuarios ni conceden permisos: la asignación de interesados sigue utilizando las cuentas administrativas existentes.
+
+La migración `2026_10_14_000001_create_advisors_table.php` añade la tabla sin alterar terrenos o solicitudes. Aplicar con `php artisan migrate`; en pruebas usar `php artisan migrate --database=pgsql_testing`. Los filtros públicos rechazan mínimos mayores que máximos, además de valores inválidos. Las pruebas AdvisorAndFiltersTest cubren límites, orden, publicación de asesores y filtros de terrenos e interesados en Filament.
+
+### Navegación local más rápida (Windows / XAMPP)
+El arranque repetido de PHP sin OPcache puede dominar el tiempo de respuesta. Para usar la caché de código únicamente en el servidor de este proyecto, detén `php artisan serve` con Ctrl+C y ejecuta desde C:\Lotex:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\serve-local.ps1
+```
+
+Abre http://127.0.0.1:8000. Si necesitas mantener otro servidor, añade `-Port 8001`. El script no modifica php.ini ni instala servicios; valida cambios de archivos en cada petición. La primera carga después de arrancar es más lenta mientras se llena OPcache. Ctrl+C detiene el servidor. Si PHP está en otra ruta, usa `-Php C:\ruta\php.exe`. Es un servidor local, no un despliegue de producción.
+
+El catálogo aplica filtros y orden en PostgreSQL; las zonas se consultan sin cargar el inventario y los relacionados se limitan a tres antes de recuperarlos. No se guardan resultados del catálogo en caché, por lo que la publicación y los cambios administrativos se reflejan inmediatamente.
+
+Los asesores admiten una fotografía JPG, PNG o WebP de hasta 5 MB. Los archivos se guardan en almacenamiento privado y se sirven únicamente para perfiles publicados. Puedes reemplazar o quitar la fotografía al editar; quitarla no borra automáticamente el archivo anterior del almacenamiento.

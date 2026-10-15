@@ -29,6 +29,12 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PropertyResource extends Resource
 {
+    protected static string|\UnitEnum|null $navigationGroup = 'Gestión comercial';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
+
+    protected static ?int $navigationSort = 1;
+
     protected static ?string $model = Property::class;
 
     protected static ?string $modelLabel = 'terreno';
@@ -95,7 +101,7 @@ class PropertyResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
+        return $table->deferFilters(false)->columns([
             TextColumn::make('code')->label('Clave')->searchable(),
             TextColumn::make('title')->label('Terreno')->searchable()->sortable(),
             TextColumn::make('zone.name')->label('Zona')->searchable(),

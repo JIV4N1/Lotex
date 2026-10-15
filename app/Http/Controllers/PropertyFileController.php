@@ -2,12 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Advisor;
 use App\Models\PropertyDocument;
 use App\Models\PropertyImage;
 use Illuminate\Support\Facades\Storage;
 
 class PropertyFileController extends Controller
 {
+    public function advisorPhoto(Advisor $advisor)
+    {
+        abort_unless($advisor->is_active && $advisor->photo_path, 404);
+        $this->checkPath($advisor->photo_path, 'advisor-photos/');
+        $disk = Storage::disk('local');
+        abort_unless(in_array($disk->mimeType($advisor->photo_path), ['image/jpeg', 'image/png', 'image/webp']), 404);
+
+        return $disk->response($advisor->photo_path, null, ['X-Content-Type-Options' => 'nosniff', 'Cache-Control' => 'private, no-store']);
+    }
+
     public function image(PropertyImage $image)
     {
         abort_unless($image->property && $image->property->publication_status->value === 'publicado', 404);

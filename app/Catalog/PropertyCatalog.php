@@ -3,6 +3,7 @@
 namespace App\Catalog;
 
 use App\Models\Property;
+use App\Models\Zone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
@@ -21,7 +22,39 @@ class PropertyCatalog
 
     public function zones(): Collection
     {
-        return $this->all()->pluck('zone')->unique()->sort()->values();
+        return Zone::whereHas('properties', fn ($query) => $query->where('publication_status', 'publicado'))->distinct()->orderBy('name')->pluck('name');
+    }
+
+    public function filtered(array $filters): Collection
+    {
+        $query = $this->query();
+        if (! empty($filters['zone'])) {
+            $query->whereHas('zone', fn ($zone) => $zone->where('name', $filters['zone']));
+        }
+        foreach (['min_price' => ['price_mxn', '>='], 'max_price' => ['price_mxn', '<='], 'min_area' => ['area_m2', '>='], 'max_area' => ['area_m2', '<=']] as $key => [$column, $operator]) {
+            if (isset($filters[$key])) {
+                $query->where($column, $operator, $filters[$key]);
+            }
+        }
+        match ($filters['sort'] ?? 'recent') {
+            'price_asc' => $query->orderBy('price_mxn'),
+            'price_desc' => $query->orderByDesc('price_mxn'),
+            default => $query->latest(),
+        };
+
+        return $query->orderByDesc('id')->get()->map(fn ($property) => $this->present($property));
+    }
+
+    public function featured(): Collection
+    {
+        return $this->query()->where('is_featured', true)->latest()->get()->map(fn ($property) => $this->present($property));
+    }
+
+    public function related(array $property): Collection
+    {
+        return $this->query()->where('slug', '!=', $property['slug'])
+            ->orderByRaw('CASE WHEN zone_id IN (SELECT id FROM zones WHERE name = ?) THEN 0 ELSE 1 END', [$property['zone']])
+            ->latest()->limit(3)->get()->map(fn ($item) => $this->present($item));
     }
 
     public function find(string $slug): ?array

@@ -16,7 +16,7 @@
     @else
         <p class="muted">Ubicación exacta pendiente de confirmar.</p>
     @endif
-    <a class="text-link d-block mt-3" href="{{ route('contact', ['terreno' => $property['slug']]) }}">Consultar este terreno →</a>
+    @if($property['availability'] !== 'vendido')<a class="text-link d-block mt-3" href="#solicitar-visita" data-open-visit>Solicitar una visita →</a>@endif
 </section>
 <section class="detail-section" id="documentacion">
     <p class="eyebrow muted">Información para decidir</p><h2>Documentación y planos</h2>

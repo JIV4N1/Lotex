@@ -64,54 +64,155 @@ if (editor) {
     editor.querySelector('[data-demo-fields]').disabled = false;
 }
 
-const chat = document.querySelector('[data-chat-demo]');
+const chat = document.querySelector('[data-chat]');
 if (chat) {
     const dialog = chat.querySelector('dialog');
     const launcher = chat.querySelector('.chat-launcher');
     const messages = chat.querySelector('.chat-messages');
     const welcome = messages.firstElementChild.cloneNode(true);
     const input = chat.querySelector('#chat-message');
-    const links = chat.querySelectorAll('[data-chat-links] a');
-    const replies = {
-        terrenos: ['Puedes probar los filtros por zona, precio y superficie en nuestro catálogo. Las fichas muestran la información publicada por la administración.', 0],
-        documentos: ['La ficha incluye un espacio para documentación revisada. Consulta los archivos disponibles en cada terreno; este asistente no verifica su validez.', null],
-        visita: ['En el futuro podremos orientarte para solicitar una visita. Por ahora, Contacto es una maqueta y no envía solicitudes ni confirma citas.', 1],
-        general: ['Este es un ejemplo visual con respuestas predefinidas. Todavía no puedo interpretar preguntas. Prueba una opción o explora el catálogo.', 0],
-    };
-    const bubble = (text, author, linkIndex = null) => {
+    const status = chat.querySelector('.chat-status');
+    const controls = [...chat.querySelectorAll('form button, [data-chat-topic]')];
+    let history = [];
+    let pending = null;
+    const bubble = (text, author) => {
         const item = document.createElement('div');
         item.className = 'chat-bubble ' + (author === 'Tú' ? 'chat-user' : 'chat-bot');
         const speaker = document.createElement('span');
         speaker.className = 'chat-speaker';
         speaker.textContent = author;
         item.append(speaker, document.createTextNode(text));
-        if (linkIndex !== null) item.append(links[linkIndex].cloneNode(true));
         messages.append(item);
         while (messages.children.length > 21) messages.children[1].remove();
         messages.scrollTop = messages.scrollHeight;
+        return item;
+    };
+    const send = async (text) => {
+        if (pending || !text) return;
+        const controller = new AbortController();
+        pending = controller;
+        controls.forEach(button => button.disabled = true);
+        input.disabled = true;
+        bubble(text, 'Tú');
+        input.value = '';
+        status.textContent = 'Consultando terrenos…';
+        messages.setAttribute('aria-busy', 'true');
+        const timeout = setTimeout(() => controller.abort(), 35000);
+        try {
+            const response = await fetch(chat.dataset.endpoint, {
+                method: 'POST', signal: controller.signal, credentials: 'same-origin',
+                headers: {'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': chat.dataset.token},
+                body: JSON.stringify({message: text, history, property_slug: chat.dataset.property || null}),
+            });
+            const data = await response.json();
+            if (pending !== controller) return;
+            if (!response.ok) {
+                const fallback = response.status === 429 ? 'Límite de consultas alcanzado. Intenta más tarde o utiliza el catálogo.' : response.status === 419 ? 'Tu sesión venció. Recarga la página para continuar.' : 'No pude realizar la consulta. Intenta más tarde o utiliza el catálogo.';
+                bubble(response.status === 503 ? data.message || fallback : fallback, 'Horizonte');
+                return;
+            }
+            const item = bubble(data.message, 'Horizonte');
+            for (const property of data.properties || []) {
+                const card = document.createElement('div');
+                card.className = 'chat-property';
+                const link = document.createElement('a');
+                const url = new URL(property.url, location.origin);
+                if (url.origin !== location.origin || !url.pathname.startsWith('/terrenos/')) continue;
+                link.href = url.href;
+                link.textContent = property.title;
+                card.append(link);
+                for (const text of [property.location, property.summary, property.details].filter(Boolean)) {
+                    const paragraph = document.createElement('p');
+                    paragraph.textContent = text;
+                    card.append(paragraph);
+                }
+                item.append(card);
+            }
+            history = [...history, text].slice(-6);
+            messages.scrollTop = messages.scrollHeight;
+        } catch (error) {
+            if (pending === controller) bubble('No pude conectar con el asistente. Puedes intentar otra vez o explorar el catálogo.', 'Horizonte');
+        } finally {
+            clearTimeout(timeout);
+            if (pending === controller) {
+                pending = null;
+                controls.forEach(button => button.disabled = false);
+                input.disabled = false;
+                messages.setAttribute('aria-busy', 'false');
+                status.textContent = '';
+                if (dialog.open) input.focus();
+            }
+        }
     };
     launcher.hidden = false;
     launcher.addEventListener('click', () => dialog.showModal());
     chat.querySelector('.chat-close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => {
+        pending?.abort();
+        pending = null;
+        history = [];
+        controls.forEach(button => button.disabled = false);
+        input.disabled = false;
+        messages.setAttribute('aria-busy', 'false');
         messages.replaceChildren(welcome.cloneNode(true));
         input.value = '';
+        status.textContent = '';
         launcher.focus();
     });
-    chat.querySelectorAll('[data-chat-topic]').forEach((button) => {
-        button.addEventListener('click', () => {
-            bubble(button.textContent, 'Tú');
-            const [text, link] = replies[button.dataset.chatTopic];
-            bubble(text, 'Horizonte · Demo', link);
-        });
-    });
-    chat.querySelector('form').addEventListener('submit', (event) => {
+    const questions = {terrenos: 'Muéstrame terrenos publicados', documentos: '¿Qué documentación tiene este terreno?', visita: '¿Cómo coordino una visita?'};
+    chat.querySelectorAll('[data-chat-topic]').forEach(button => button.addEventListener('click', () => send(questions[button.dataset.chatTopic])));
+    chat.querySelector('form').addEventListener('submit', event => {
         event.preventDefault();
-        const text = input.value.trim();
-        if (!text) return;
-        bubble(text, 'Tú');
-        bubble(replies.general[0], 'Horizonte · Demo', replies.general[1]);
-        input.value = '';
-        input.focus();
+        if (input.reportValidity()) send(input.value.trim());
     });
 }
+
+// Enhance the inline fallback into one accessible modal for every visit action.
+const visitSection = document.querySelector('#solicitar-visita');
+if (visitSection) {
+    const reopen = visitSection.open || location.hash === '#solicitar-visita';
+    const trigger = visitSection.querySelector('summary');
+    const content = visitSection.querySelector('[data-visit-content]');
+    const modal = document.createElement('dialog');
+    modal.className = 'visit-dialog';
+    modal.id = 'visit-dialog';
+    modal.setAttribute('aria-labelledby', 'visit-dialog-title');
+    const header = document.createElement('header');
+    header.className = 'visit-dialog-header';
+    const title = document.createElement('h2');
+    title.id = 'visit-dialog-title';
+    title.className = 'h4 mb-0';
+    title.textContent = 'Visita este terreno';
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'visit-dialog-close';
+    close.setAttribute('aria-label', 'Cerrar solicitud de visita');
+    close.textContent = '×';
+    header.append(title, close);
+    modal.append(header, content);
+    document.body.append(modal);
+    visitSection.open = false;
+    trigger.setAttribute('aria-haspopup', 'dialog');
+    trigger.setAttribute('aria-controls', modal.id);
+    let opener = trigger;
+    const openVisit = (event) => {
+        event?.preventDefault();
+        opener = event?.currentTarget || trigger;
+        if (!modal.open) modal.showModal();
+        (modal.querySelector('.is-invalid') || modal.querySelector('#visitor-name') || close).focus({preventScroll: true});
+    };
+    trigger.addEventListener('click', openVisit);
+    document.querySelectorAll('a[href="#solicitar-visita"]').forEach(link => link.addEventListener('click', openVisit));
+    close.addEventListener('click', () => modal.close());
+    modal.addEventListener('close', () => opener.focus({preventScroll: true}));
+    if (reopen) openVisit();
+}
+document.querySelectorAll('[data-visit-form]').forEach(form => form.addEventListener('submit', () => {
+    const button = form.querySelector('button[type=submit]');
+    button.disabled = true;
+    button.textContent = 'Enviando…';
+}));
+window.addEventListener('pageshow', () => document.querySelectorAll('[data-visit-form] button[type=submit]').forEach(button => {
+    button.disabled = false;
+    button.textContent = 'Solicitar visita';
+}));

@@ -2,12 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\SetAdminLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -26,7 +26,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Inmobiliaria Horizonte')
+            ->brandName('Horizonte · Administración')
+            ->colors(['primary' => '#245440'])
+            ->darkMode(false)
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups(['Gestión comercial', 'Ubicaciones'])
+            ->renderHook('panels::head.end', fn () => view('filament.admin-styles'))
+            ->renderHook('panels::page.start', fn () => view('filament.back-navigation'))
             ->pages([Dashboard::class])->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->middleware([
                 EncryptCookies::class,

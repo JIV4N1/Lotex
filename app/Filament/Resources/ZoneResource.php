@@ -16,6 +16,12 @@ use Illuminate\Validation\Rules\Unique;
 
 class ZoneResource extends Resource
 {
+    protected static string|\UnitEnum|null $navigationGroup = 'Ubicaciones';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map-pin';
+
+    protected static ?int $navigationSort = 5;
+
     protected static ?string $model = Zone::class;
 
     protected static ?string $modelLabel = 'zona';

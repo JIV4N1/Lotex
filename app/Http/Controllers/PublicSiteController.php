@@ -12,7 +12,7 @@ class PublicSiteController extends Controller
 {
     public function home(PropertyCatalog $catalog): View
     {
-        return view('home', ['featured' => $catalog->all()->where('featured', true), 'zones' => $catalog->zones()]);
+        return view('home', ['featured' => $catalog->featured(), 'zones' => $catalog->zones()]);
     }
 
     public function index(Request $request, PropertyCatalog $catalog): View|RedirectResponse
@@ -25,27 +25,20 @@ class PublicSiteController extends Controller
             'max_area' => ['nullable', 'numeric', 'min:0', 'max:999999999'],
             'sort' => ['nullable', 'in:recent,price_asc,price_desc'],
         ]);
+        $validator->after(function ($validator) use ($request) {
+            foreach (['price', 'area'] as $field) {
+                $min = $request->query('min_'.$field);
+                $max = $request->query('max_'.$field);
+                if (is_numeric($min) && is_numeric($max) && $min > $max) {
+                    $validator->errors()->add('max_'.$field, 'El máximo debe ser mayor o igual al mínimo.');
+                }
+            }
+        });
         if ($validator->fails()) {
             return redirect()->route('properties.index')->withErrors($validator);
         }
         $filters = $validator->validated();
-        $properties = $catalog->all()->filter(function ($property) use ($filters) {
-            if (! empty($filters['zone']) && $property['zone'] !== $filters['zone']) {
-                return false;
-            }
-            foreach (['min_price' => ['price', true], 'max_price' => ['price', false], 'min_area' => ['area', true], 'max_area' => ['area', false]] as $key => [$field, $minimum]) {
-                if (isset($filters[$key]) && ($minimum ? $property[$field] < $filters[$key] : $property[$field] > $filters[$key])) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-        $properties = match ($filters['sort'] ?? 'recent') {
-            'price_asc' => $properties->sortBy('price'),
-            'price_desc' => $properties->sortByDesc('price'),
-            default => $properties->sortByDesc('date'),
-        };
+        $properties = $catalog->filtered($filters);
 
         return view('properties.index', compact('properties', 'filters') + ['zones' => $catalog->zones()]);
     }
@@ -55,7 +48,7 @@ class PublicSiteController extends Controller
         $property = $catalog->find($slug);
         abort_unless($property, 404);
 
-        return view('properties.show', compact('property') + ['related' => $catalog->all()->where('slug', '!=', $slug)->sortByDesc(fn ($item) => $item['zone'] === $property['zone'])->take(3)]);
+        return view('properties.show', compact('property') + ['related' => $catalog->related($property)]);
     }
 
     public function contact(Request $request, PropertyCatalog $catalog): View

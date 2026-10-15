@@ -57,6 +57,11 @@ class Property extends Model
         return $this->hasMany(PropertyDocument::class);
     }
 
+    public function visitRequests(): HasMany
+    {
+        return $this->hasMany(VisitRequest::class);
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(PropertyImage::class)->orderBy('position')->orderBy('id');
