@@ -34,10 +34,13 @@ class VisitRequestController extends Controller
         Cache::lock('visit-'.hash('sha256', $property->id.':'.$phone), 10)->block(3, function () use ($property, $input, $phone) {
             $duplicate = VisitRequest::where('property_id', $property->id)->where('phone', $phone)->where('created_at', '>=', now()->subDay())->exists();
             if (! $duplicate) {
-                VisitRequest::firstOrCreate(['submission_token' => $input['submission_token']], [
+                $saved = VisitRequest::firstOrCreate(['submission_token' => $input['submission_token']], [
                     'property_id' => $property->id, 'name' => trim($input['name']), 'phone' => $phone,
                     'status' => 'nuevo', 'assigned_to' => null,
                 ]);
+                if ($saved->property_id !== $property->id || $saved->phone !== $phone) {
+                    throw ValidationException::withMessages(['submission_token' => 'Recarga la ficha del terreno y vuelve a enviar tu solicitud.']);
+                }
             }
         });
 

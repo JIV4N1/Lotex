@@ -38,6 +38,7 @@ class PublicSiteController extends Controller
             return redirect()->route('properties.index')->withErrors($validator);
         }
         $filters = $validator->validated();
+        $request->session()->put('catalog_filters', array_filter($filters, fn ($value) => $value !== null && $value !== ''));
         $properties = $catalog->filtered($filters);
 
         return view('properties.index', compact('properties', 'filters') + ['zones' => $catalog->zones()]);

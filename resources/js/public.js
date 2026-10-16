@@ -273,5 +273,5 @@ document.querySelectorAll('[data-visit-form]').forEach(form => form.addEventList
 }));
 window.addEventListener('pageshow', () => document.querySelectorAll('[data-visit-form] button[type=submit]').forEach(button => {
     button.disabled = false;
-    button.textContent = 'Solicitar visita';
+    button.textContent = 'Enviar solicitud de visita';
 }));

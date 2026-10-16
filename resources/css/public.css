@@ -197,6 +197,7 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
 .thumbnails{overflow-x:auto;max-width:100%;padding-bottom:6px}.thumbnail{flex-shrink:0}
 @media(max-width:575.98px){.row.g-5{--bs-gutter-x:1.5rem}.contact-form{padding:1.25rem}.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-list>div{grid-template-columns:1fr;gap:.35rem}}
 .about-landscape{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:8px}
+.catalog-filter-summary{padding:1rem 1.25rem;background:#edf0e6;border:1px solid #d7dfcf;border-radius:8px;font-size:.9rem}.catalog-filter-summary li{background:#fffdf8;border-radius:6px;padding:.35rem .65rem;overflow-wrap:anywhere}
 
 /* Short, non-blocking interactions; no animation delays on navigation. */
 @media(prefers-reduced-motion:no-preference){

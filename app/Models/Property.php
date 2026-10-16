@@ -12,10 +12,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Property extends Model
 {
     use SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::saving(function (Property $property) {
+            if (blank($property->code)) {
+                $property->code = 'HZ-'.Str::ulid();
+            }
+            if (blank($property->slug)) {
+                $property->slug = (rtrim(substr(Str::slug($property->title), 0, 200), '-') ?: 'terreno').'-'.strtolower((string) Str::ulid());
+            }
+        });
+    }
 
     protected $fillable = [
         'zone_id', 'code', 'slug', 'title', 'description', 'price_mxn', 'area_m2',

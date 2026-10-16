@@ -333,3 +333,11 @@ Referencia de métricas: https://ai.google.dev/api/generate-content#UsageMetadat
 El despliegue preparado para VPS/Easypanel está documentado en [docs/deployment.md](docs/deployment.md). Incluye Dockerfile, compilación de recursos, PHP 8.4 con OPcache, volumen persistente y plantilla de variables sin secretos en `deploy/production.env.example`. No modifica tu entorno local ni publica automáticamente; faltan crear el servicio y configurar el dominio HTTPS.
 
 Consulta `docs/security-review.md` para los controles revisados y pendientes de despliegue. Ejecuta `php artisan security:check` para comprobar flags de producción sin revelar secretos. El entorno local no equivale a una aprobación para publicar.
+
+### Captura de terrenos campestres y recorrido del cliente
+
+Se puede guardar un borrador únicamente con el nombre del terreno. Para publicarlo se requieren nombre, zona, descripción, precio no negativo y superficie mayor que cero. La clave y el enlace se generan al guardar si se dejan vacíos y no cambian al modificar el título. Medidas adicionales, servicios, acceso, topografía, uso de suelo, documentos y condiciones de pago son opcionales; las secciones adicionales están plegadas para facilitar la captura. No se deben inventar datos pendientes.
+
+La migración `2026_10_16_000001_allow_incomplete_property_drafts.php` permite campos pendientes en borradores y añade una restricción PostgreSQL que impide publicar fichas incompletas. No elimina registros. Aplicarla en cada entorno con `php artisan migrate --database=pgsql --path=database/migrations/2026_10_16_000001_allow_incomplete_property_drafts.php`; para pruebas sustituir la conexión por `pgsql_testing`. Su reversión se detiene si existen datos incompletos, sin rellenarlos ni eliminarlos automáticamente.
+
+El catálogo muestra filtros aplicados y permite quitarlos; la ficha ofrece volver a la búsqueda anterior de la sesión. La solicitud muestra el nombre del terreno, pide nombre y WhatsApp y explica que el equipo acordará la cita después. El envío se verifica en la base separada mediante `php artisan test --filter=CountryPropertyJourneyTest`, sin crear clientes de prueba en desarrollo.

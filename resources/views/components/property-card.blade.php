@@ -10,6 +10,6 @@
             <p class="price mb-0">${{ number_format($property['price']) }} <small>MXN</small></p>
             <span class="text-nowrap">{{ number_format($property['area']) }} m²</span>
         </div>
-        <p class="small muted border-top pt-3 mt-3 mb-0">Referencia {{ $property['code'] }}</p>
+        <div class="border-top pt-3 mt-3"><a class="text-link" href="{{ route('properties.show', $property['slug']) }}" aria-label="Ver detalles de {{ $property['title'] }}">Ver terreno →</a></div>
     </div>
 </article>
