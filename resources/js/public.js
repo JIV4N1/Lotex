@@ -1,4 +1,5 @@
 import 'bootstrap/js/dist/collapse';
+import './motion';
 
 document.querySelectorAll('[data-gallery]').forEach((gallery) => {
     const main = gallery.querySelector('.gallery-main');

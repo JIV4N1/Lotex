@@ -197,3 +197,19 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
 .thumbnails{overflow-x:auto;max-width:100%;padding-bottom:6px}.thumbnail{flex-shrink:0}
 @media(max-width:575.98px){.row.g-5{--bs-gutter-x:1.5rem}.contact-form{padding:1.25rem}.spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-list>div{grid-template-columns:1fr;gap:.35rem}}
 .about-landscape{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:8px}
+
+/* Short, non-blocking interactions; no animation delays on navigation. */
+@media(prefers-reduced-motion:no-preference){
+    .property-card,.advisor-card{transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease}
+    main .btn{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease}
+    main .btn:active{transform:translateY(1px)}
+    .navbar .nav-link{position:relative}
+    .navbar .nav-link::after{content:"";position:absolute;left:.5rem;right:.5rem;bottom:.2rem;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .2s ease}
+    .navbar .nav-link:hover::after,.navbar .nav-link:focus-visible::after{transform:scaleX(1)}
+    @media(hover:hover) and (pointer:fine){
+        .property-card:hover,.advisor-card:hover{transform:translateY(-4px);box-shadow:0 12px 28px #173e3214;border-color:#b9c9b6}
+        main .btn:hover{transform:translateY(-2px);box-shadow:0 5px 14px #173e3218}
+        .zone-grid>a>span:last-child{transition:transform .2s ease}
+        .zone-grid>a:hover>span:last-child{transform:translate(3px,-3px)}
+    }
+}
