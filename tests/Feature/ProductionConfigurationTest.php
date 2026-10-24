@@ -2,12 +2,31 @@
 
 namespace Tests\Feature;
 
+use App\Providers\AppServiceProvider;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Tests\TestCase;
 
 class ProductionConfigurationTest extends TestCase
 {
+    public function test_production_login_generates_https_livewire_urls_over_internal_http(): void
+    {
+        $this->app->instance('env', 'production');
+        config(['app.url' => 'https://horizonte.test', 'trustedproxy.proxies' => [], 'session.secure' => true]);
+        (new AppServiceProvider($this->app))->boot();
+        try {
+            $response = $this->get('http://horizonte.test/admin/login');
+            $response->assertOk()->assertDontSee('http://horizonte.test', false);
+            $response->assertSee('https://horizonte.test/livewire', false);
+            $this->assertSame('https://horizonte.test/admin', route('filament.admin.pages.dashboard'));
+            $this->assertFalse(request()->isSecure()); // Does not trust arbitrary proxy headers.
+        } finally {
+            URL::forceScheme(null);
+            Request::setTrustedHosts([]);
+        }
+    }
+
     public function test_only_known_proxy_can_forward_client_ip_and_https(): void
     {
         config(['trustedproxy.proxies' => ['10.20.0.5']]);
