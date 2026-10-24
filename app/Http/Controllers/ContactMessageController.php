@@ -28,7 +28,7 @@ class ContactMessageController extends Controller
         }
         $property = null;
         if (! empty($data['property_slug'])) {
-            $property = Property::where('publication_status', 'publicado')->where('slug', $data['property_slug'])->first();
+            $property = Property::publiclyVisible()->where('slug', $data['property_slug'])->first();
             if (! $property) {
                 throw ValidationException::withMessages(['property_slug' => 'El terreno ya no está publicado. Envía una consulta general desde Contacto.']);
             }

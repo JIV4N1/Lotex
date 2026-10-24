@@ -341,3 +341,46 @@ Se puede guardar un borrador únicamente con el nombre del terreno. Para publica
 La migración `2026_10_16_000001_allow_incomplete_property_drafts.php` permite campos pendientes en borradores y añade una restricción PostgreSQL que impide publicar fichas incompletas. No elimina registros. Aplicarla en cada entorno con `php artisan migrate --database=pgsql --path=database/migrations/2026_10_16_000001_allow_incomplete_property_drafts.php`; para pruebas sustituir la conexión por `pgsql_testing`. Su reversión se detiene si existen datos incompletos, sin rellenarlos ni eliminarlos automáticamente.
 
 El catálogo muestra filtros aplicados y permite quitarlos; la ficha ofrece volver a la búsqueda anterior de la sesión. La solicitud muestra el nombre del terreno, pide nombre y WhatsApp y explica que el equipo acordará la cita después. El envío se verifica en la base separada mediante `php artisan test --filter=CountryPropertyJourneyTest`, sin crear clientes de prueba en desarrollo.
+
+### Configuración general y supervisión de asesores
+
+`/superadmin/configuracion-general` permite editar presentación del pie de página, zona de atención, correo, teléfono y horario. Los contactos son opcionales y solo aparecen cuando se completan. Los valores se validan y se muestran escapados; no admite HTML, credenciales ni claves de API. Los cambios se reflejan en el pie de todas las páginas públicas sin recompilar recursos.
+
+`/superadmin/supervision-asesores` muestra todas las solicitudes agrupadas por la cuenta responsable actual: total, nuevos, contactados, próximas citas, citas pasadas y cerrados, además de solicitudes abiertas sin asignar. No mide ventas, comisiones ni desempeño histórico: una reasignación cambia la cuenta en la que se contabiliza la solicitud. Cita pasada no implica visita realizada. Incluye responsables sin acceso administrativo si conservan solicitudes. Los perfiles públicos de Asesores siguen siendo independientes de las cuentas que atienden interesados.
+
+Ambos módulos requieren una cuenta superadmin (`is_admin=true` e `is_superadmin=true`); también se comprueba autorización al guardar configuración. Ninguna cuenta existente recibe este permiso automáticamente. Aplicar la migración no destructiva `2026_10_18_000001_create_site_settings_table.php` antes de publicar este cambio: `php artisan migrate --database=pgsql --path=database/migrations/2026_10_18_000001_create_site_settings_table.php`. Para la base de pruebas usar `--database=pgsql_testing`. Validación específica: `php artisan test --filter=ManagementModulesTest`.
+
+
+### Cuentas y paneles independientes
+
+- Administrador: `/admin/login`, gestión diaria de terrenos, ubicaciones, asesores, interesados, mensajes y chatbot. Sin configuración general ni supervisión.
+- Superadmin: `/superadmin/login`, gestión completa más configuración general y supervisión. Sus credenciales se rechazan en el login de administrador y viceversa. Se usan guards de sesión separados sobre la misma tabla de usuarios; no son dos aplicaciones ni dos bases de datos.
+
+Las cuentas existentes conservan su acceso de administrador. La migración `2026_10_18_000002_add_superadmin_to_users.php` añade `is_superadmin=false` sin elevar permisos. Aplicar en desarrollo con `php artisan migrate --database=pgsql --path=database/migrations/2026_10_18_000002_add_superadmin_to_users.php`; en pruebas sustituir la conexión por `pgsql_testing`.
+
+Para crear tu nueva cuenta desde PowerShell:
+
+```powershell
+Set-Location C:\Lotex
+& C:\xampp\php\php.exe artisan superadmin:create
+```
+
+Usa un correo diferente al del administrador. El comando pide nombre, correo y contraseña oculta con confirmación (mínimo 12 caracteres, letras y números); almacena el hash y rechaza cualquier correo existente. No admite contraseña como argumento ni crea contraseñas predeterminadas. Para otra cuenta de administrador utiliza `admin:create`. No se ha creado ninguna cuenta real automáticamente.
+
+### Apariencia de los paneles
+
+Administrador y superadmin admiten tema claro, oscuro y automático (según el sistema) desde el selector del menú de usuario de Filament. La preferencia se guarda en el navegador y se comparte entre los dos paneles del mismo sitio. Los estilos personalizados del resumen, supervisión y monitor del chatbot incluyen variantes oscuras; no se modifica el tema del sitio público.
+
+### Lotificaciones y lotes
+
+En **Terrenos → Crear**, activa «Es una lotificación» y captura nombre, zona, descripción, fotografías y documentos comunes. Su precio y superficie no se capturan: el precio «desde» y la superficie mínima se calculan con sus lotes publicados y disponibles. Publica la ficha principal cuando esté lista.
+
+Para cada lote, crea otro registro en Terrenos, selecciona «Pertenece a una lotificación» e introduce manzana, número, precio, superficie y disponibilidad. El título se genera; la clave y el enlace siguen siendo únicos. No se puede repetir manzana/número dentro de una lotificación, incluso en registros eliminados: restaura el registro anterior. Los campos comunes vacíos heredan los del conjunto; servicios y fotografías propios reemplazan los heredados, los documentos públicos se combinan. La zona se toma de la lotificación, sin copiarla en cada lote. Las medidas y el precio siempre pertenecen al lote.
+
+El catálogo agrupa los lotes disponibles bajo una tarjeta; los filtros combinados deben coincidir en el mismo lote. Las fichas usan `/terrenos/{slug}` y la ficha principal muestra una lista paginada filtrable por manzana, disponibilidad, precio máximo y superficie mínima. Los apartados y vendidos se pueden consultar en esa lista, pero no determinan el precio «desde». Una lotificación sin lotes publicados disponibles no aparece en el catálogo; su URL publicada sigue mostrando la lista y el aviso de disponibilidad. Los terrenos independientes conservan su funcionamiento.
+
+Cada solicitud de visita apunta al registro del lote seleccionado. No se aceptan solicitudes ambiguas a la ficha principal. Ocultar o eliminar lógicamente la lotificación oculta sus lotes y sus archivos públicos, sin borrar solicitudes. Restaurar la principal restablece la visibilidad de los lotes que sigan publicados. No se puede convertir en terreno una lotificación con lotes asociados.
+
+Aplica `php artisan migrate --database=pgsql --path=database/migrations/2026_10_22_000001_add_lotifications.php`; en pruebas usa `--database=pgsql_testing`. La migración es aditiva, conserva terrenos existentes y no admite una reversión automática que pierda la agrupación. Pruebas: `php artisan test --filter=LotificationTest`.
+
+No se importaron ni publicaron los lotes del PDF Santa Martha II. La captura masiva y el plano interactivo quedan fuera de esta implementación; se puede adjuntar un plano PDF revisado usando Documentos y planos.

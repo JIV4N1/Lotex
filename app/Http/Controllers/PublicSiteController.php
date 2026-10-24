@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Catalog\PropertyCatalog;
+use App\Models\Property;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -44,10 +45,32 @@ class PublicSiteController extends Controller
         return view('properties.index', compact('properties', 'filters') + ['zones' => $catalog->zones()]);
     }
 
-    public function show(string $slug, PropertyCatalog $catalog): View
+    public function show(Request $request, string $slug, PropertyCatalog $catalog): View
     {
         $property = $catalog->find($slug);
         abort_unless($property, 404);
+
+        if ($property['is_lotification']) {
+            $filters = $request->validate(['block' => 'nullable|string|max:40', 'availability' => 'nullable|in:disponible,apartado,vendido', 'max_price' => 'nullable|numeric|min:0', 'min_area' => 'nullable|numeric|min:0']);
+            $parent = Property::publiclyVisible()->where('slug', $slug)->firstOrFail();
+            $inventory = $parent->lots()->publiclyVisible()->get()->sort(fn ($a, $b) => strnatcmp($a->block, $b->block) ?: strnatcmp($a->lot_number, $b->lot_number));
+
+            $query = $parent->lots()->publiclyVisible();
+            if (! empty($filters['block'])) {
+                $query->where('block', $filters['block']);
+            }
+            if (! empty($filters['availability'])) {
+                $query->where('availability_status', $filters['availability']);
+            }
+            if (isset($filters['max_price'])) {
+                $query->where('price_mxn', '<=', $filters['max_price']);
+            }
+            if (isset($filters['min_area'])) {
+                $query->where('area_m2', '>=', $filters['min_area']);
+            }
+
+            return view('properties.lotification', compact('property', 'filters', 'inventory') + ['lots' => $query->orderByRaw("CASE WHEN block ~ '^[0-9]+$' THEN block::numeric END NULLS LAST")->orderBy('block')->orderByRaw("CASE WHEN lot_number ~ '^[0-9]+$' THEN lot_number::numeric END NULLS LAST")->orderBy('lot_number')->paginate(24)->withQueryString(), 'blocks' => $parent->lots()->publiclyVisible()->distinct()->orderBy('block')->pluck('block')]);
+        }
 
         return view('properties.show', compact('property') + ['related' => $catalog->related($property)]);
     }

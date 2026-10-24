@@ -9,6 +9,9 @@
             <div><h2 id="chat-title">Asistente Horizonte</h2><span>Tu búsqueda, más fácil · IA</span></div>
             <button class="chat-close" type="button" aria-label="Cerrar asistente" autofocus>×</button>
         </header>
+        <button type="button" class="chat-resize chat-resize-top" data-resize="top" aria-label="Ajustar altura del chat con las flechas arriba y abajo" title="Arrastra para ajustar la altura"></button>
+        <button type="button" class="chat-resize chat-resize-left" data-resize="left" aria-label="Ajustar ancho del chat con las flechas izquierda y derecha" title="Arrastra para ajustar el ancho"></button>
+        <button type="button" class="chat-resize chat-resize-corner" data-resize="corner" aria-label="Ajustar tamaño del chat con las flechas" title="Arrastra para ajustar el tamaño"><span aria-hidden="true">⌜</span></button>
         <div class="chat-messages" role="log" aria-label="Conversación con Horizonte" aria-live="polite" aria-relevant="additions" tabindex="0">
             <div class="chat-bubble chat-bot"><span class="chat-speaker">Horizonte</span>{{ request()->routeIs('properties.show') ? '¡Hola! Estoy en la ficha de este terreno. Puedes preguntarme por sus medidas, precio o servicios.' : '¡Hola! Puedo buscar terrenos por zona, presupuesto y superficie. ¿Qué estás buscando?' }}</div>
         </div>

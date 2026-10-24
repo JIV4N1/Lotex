@@ -12,7 +12,8 @@ class VisitRequestController extends Controller
 {
     public function store(Request $request, string $slug)
     {
-        $property = Property::where('publication_status', 'publicado')->where('slug', $slug)->firstOrFail();
+        $property = Property::publiclyVisible()->where('slug', $slug)->firstOrFail();
+        abort_if($property->is_lotification, 422, 'Selecciona un lote para solicitar la visita.');
         abort_if($property->availability_status->value === 'vendido', 409, 'Este terreno ya fue vendido.');
         $input = $request->validate([
             'name' => ['required', 'string', 'max:120'],

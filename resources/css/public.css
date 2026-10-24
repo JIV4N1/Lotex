@@ -214,3 +214,18 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
         .zone-grid>a:hover>span:last-child{transform:translate(3px,-3px)}
     }
 }
+
+/* User-controlled reading space, bounded by the available screen. */
+.chat-dialog{width:var(--chat-width,360px);height:var(--chat-height,500px);max-width:calc(100vw - 48px);max-height:calc(100dvh - 150px)}
+.chat-resize{position:absolute;z-index:2;padding:0;border:0;background:transparent;touch-action:none;color:#dfcda8}
+.chat-resize-top{top:0;left:24px;right:18px;height:8px;cursor:ns-resize}
+.chat-resize-left{left:0;top:24px;bottom:18px;width:8px;cursor:ew-resize}
+.chat-resize-corner{top:0;left:0;width:24px;height:24px;cursor:nwse-resize;font-size:20px;line-height:1}
+.chat-resize:hover,.chat-resize:focus-visible{background:#bfa77255}
+.chat-resize:focus-visible{outline:2px solid #bfa772;outline-offset:-2px}
+.chat-resizing,.chat-resizing *{user-select:none}
+.chat-bubble{font-size:.95rem;line-height:1.7;max-width:100%}
+.chat-message-text{white-space:pre-wrap}
+.chat-property p{font-size:.9rem;line-height:1.65}
+.chat-messages{scrollbar-gutter:stable}
+@media(max-width:575.98px){.chat-dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 150px - env(safe-area-inset-bottom))}}

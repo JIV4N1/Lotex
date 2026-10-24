@@ -19,18 +19,23 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
 {
+    protected function panelId(): string
+    {
+        return 'admin';
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
             ->default()
-            ->id('admin')
+            ->id($this->panelId())
             ->path('admin')
             ->login()
             ->brandName('Horizonte · Administración')
             ->colors(['primary' => '#245440'])
-            ->darkMode(false)
+            ->darkMode()
             ->sidebarCollapsibleOnDesktop()
-            ->navigationGroups(['Gestión comercial', 'Ubicaciones'])
+            ->navigationGroups(['Gestión comercial', 'Ubicaciones', 'Administración'])
             ->renderHook('panels::head.end', fn () => view('filament.admin-styles'))
             ->renderHook('panels::page.start', fn () => view('filament.back-navigation'))
             ->pages([Dashboard::class])->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

@@ -16,7 +16,7 @@ class SecurityHeaders
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
         $response->headers->set('Content-Security-Policy', "frame-ancestors 'self'; object-src 'none'; base-uri 'self'");
-        if ($request->is('admin', 'admin/*', 'livewire/*')) {
+        if ($request->is('admin', 'admin/*', 'superadmin', 'superadmin/*', 'livewire/*')) {
             $response->headers->set('Cache-Control', 'private, no-store');
         }
         if (app()->environment('production') && $request->isSecure()) {

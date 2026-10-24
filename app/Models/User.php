@@ -2,24 +2,34 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
-
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $attributes = ['is_admin' => false];
+    protected $attributes = ['is_admin' => false, 'is_superadmin' => false];
+
+    public function assignedVisits(): HasMany
+    {
+        return $this->hasMany(VisitRequest::class, 'assigned_to');
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return $panel->getId() === 'admin' && $this->is_admin;
+        return $this->is_admin && match ($panel->getId()) {
+            'admin' => ! $this->is_superadmin,
+            'superadmin' => $this->is_superadmin,
+            default => false,
+        };
     }
 
     /**
@@ -54,6 +64,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_superadmin' => 'boolean',
         ];
     }
 }

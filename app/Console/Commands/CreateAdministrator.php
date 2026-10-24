@@ -14,6 +14,11 @@ class CreateAdministrator extends Command
 
     protected $description = 'Crea un administrador nuevo sin modificar usuarios existentes';
 
+    protected function createsSuperadmin(): bool
+    {
+        return false;
+    }
+
     public function handle(): int
     {
         if (! $this->input->isInteractive()) {
@@ -57,6 +62,7 @@ class CreateAdministrator extends Command
 
             $user = new User(['name' => $name, 'email' => $email, 'password' => $password]);
             $user->is_admin = true;
+            $user->is_superadmin = $this->createsSuperadmin();
             $user->save(); // User's hashed cast handles password hashing.
         } catch (QueryException) {
             $this->error('No se pudo crear el administrador. Revisa PostgreSQL, las migraciones y que el correo no exista.');
@@ -64,7 +70,7 @@ class CreateAdministrator extends Command
             return self::FAILURE;
         }
 
-        $this->info('Administrador creado. Accede a /admin.');
+        $this->info($this->createsSuperadmin() ? 'Superadmin creado. Accede a /superadmin.' : 'Administrador creado. Accede a /admin.');
 
         return self::SUCCESS;
     }

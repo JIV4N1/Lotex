@@ -1,0 +1,92 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Catalog\PropertyCatalog;
+use App\Filament\Resources\PropertyResource\Pages\CreateProperty;
+use App\Models\Property;
+use App\Models\User;
+use App\Models\VisitRequest;
+use App\Services\ChatCatalog;
+use Filament\Facades\Filament;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
+use Tests\BuildsPropertyFixtures;
+use Tests\PostgresTestCase;
+
+class LotificationTest extends PostgresTestCase
+{
+    use BuildsPropertyFixtures;
+
+    private function group(): Property
+    {
+        return $this->makeProperty(['is_lotification' => true, 'title' => 'Santa Martha II', 'slug' => 'santa-martha', 'services' => ['Acceso común'], 'payment_terms' => 'Condiciones comunes']);
+    }
+
+    private function lot(Property $group, array $values = []): Property
+    {
+        return Property::create(array_merge(['lotification_id' => $group->id, 'block' => '1', 'lot_number' => '1', 'price_mxn' => 350000, 'area_m2' => 120, 'publication_status' => 'publicado'], $values));
+    }
+
+    public function test_catalog_groups_lots_and_inherits_shared_details_and_filters(): void
+    {
+        $group = $this->group();
+        $one = $this->lot($group);
+        $two = $this->lot($group, ['lot_number' => '2', 'price_mxn' => 385000, 'area_m2' => 128.22, 'payment_terms' => 'Pago especial']);
+        $catalog = app(PropertyCatalog::class);
+        $this->assertCount(1, $catalog->filtered([]));
+        $this->assertEquals(350000, $catalog->filtered([])->first()['price']);
+        $this->assertCount(0, $catalog->filtered(['max_price' => 360000, 'min_area' => 125]));
+        $this->assertNull($one->zone_id);
+        $this->assertSame(['Acceso común'], $catalog->find($one->slug)['services']);
+        $this->assertSame('Pago especial', $catalog->find($two->slug)['payment_terms']);
+        $this->get('/terrenos/santa-martha')->assertOk()->assertSee('Elige tu lote')->assertSee('Manzana 1 · Lote 2');
+        $this->get('/terrenos/santa-martha?max_price=360000')->assertOk()->assertDontSee('Manzana 1 · Lote 2')->assertSee('Manzana 1 · Lote 1');
+        $this->get('/terrenos/'.$one->slug)->assertOk()->assertSee('Ver todos los lotes');
+        $one->update(['availability_status' => 'vendido']);
+        $this->assertEquals(385000, $catalog->filtered([])->first()['price']);
+    }
+
+    public function test_hidden_parent_hides_lots_and_visits_target_exact_lot(): void
+    {
+        $group = $this->group();
+        $lot = $this->lot($group);
+        $payload = ['name' => 'Cliente prueba', 'phone' => '2381234567', 'submission_token' => (string) Str::uuid()];
+        $this->post(route('visits.store', $lot->slug), $payload)->assertRedirect();
+        $this->assertSame($lot->id, VisitRequest::sole()->property_id);
+        $this->post(route('visits.store', $group->slug), $payload)->assertStatus(422);
+        $group->update(['publication_status' => 'borrador']);
+        $this->get(route('properties.show', $lot->slug))->assertNotFound();
+        $this->post(route('visits.store', $lot->slug), $payload)->assertNotFound();
+        $this->assertCount(0, app(PropertyCatalog::class)->filtered([]));
+        $group->update(['publication_status' => 'publicado']);
+        $group->delete();
+        $this->get(route('properties.show', $lot->slug))->assertNotFound();
+    }
+
+    public function test_admin_can_create_group_and_lot_without_duplicate_common_data(): void
+    {
+        $zone = $this->makeProperty()->zone_id;
+        $this->actingAs(User::factory()->create(['is_admin' => true]));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        Livewire::test(CreateProperty::class)->fillForm(['is_lotification' => true, 'title' => 'Grupo nuevo', 'description' => 'Descripción común', 'zone_id' => $zone, 'publication_status' => 'publicado'])->call('create')->assertHasNoFormErrors();
+        $group = Property::where('title', 'Grupo nuevo')->firstOrFail();
+        $this->assertNull($group->price_mxn);
+        Livewire::test(CreateProperty::class)->fillForm(['lotification_id' => $group->id, 'block' => 'A', 'lot_number' => '1', 'price_mxn' => 350000, 'area_m2' => 120, 'publication_status' => 'publicado'])->call('create')->assertHasNoFormErrors();
+        $this->assertSame(1, $group->lots()->count());
+        Livewire::test(CreateProperty::class)->fillForm(['lotification_id' => $group->id, 'block' => 'A', 'lot_number' => '1', 'price_mxn' => 350000, 'area_m2' => 120, 'publication_status' => 'publicado'])->call('create')->assertHasFormErrors(['lot_number']);
+    }
+
+    public function test_large_inventory_is_paginated_in_numeric_order_and_chat_uses_group_context(): void
+    {
+        $group = $this->group();
+        for ($i = 1; $i <= 52; $i++) {
+            $this->lot($group, ['lot_number' => (string) $i]);
+        }
+        $this->get('/terrenos/santa-martha')->assertOk()->assertViewHas('lots', fn ($lots) => $lots->total() === 52 && $lots->count() === 24 && $lots->first()->lot_number === '1' && $lots->last()->lot_number === '24');
+        $this->get('/terrenos/santa-martha?page=3')->assertOk()->assertViewHas('lots', fn ($lots) => $lots->count() === 4 && $lots->first()->lot_number === '49');
+        $answer = app(ChatCatalog::class)->answer(['intent' => 'details', 'topics' => ['area']], $group->slug);
+        $this->assertStringContainsString('Selecciona uno', $answer['message']);
+        $this->assertSame([], $answer['properties']);
+    }
+}

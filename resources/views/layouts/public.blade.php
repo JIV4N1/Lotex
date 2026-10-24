@@ -12,9 +12,13 @@
 <x-navigation />
 <main id="contenido" tabindex="-1">@yield('content')</main>
 <footer class="site-footer"><div class="container"><div class="row gy-4 pb-5">
-<div class="col-md-6"><p class="footer-brand">Horizonte</p><p class="footer-note">El espacio donde comienzan tus ideas.</p><p class="small mt-3">Lotificaciones en Venta · Puebla, México</p></div>
+<div class="col-md-6"><p class="footer-brand">Horizonte</p><p class="footer-note">{{ $siteSettings['footer_text'] }}</p><p class="small mt-3">{{ $siteSettings['coverage'] }}</p></div>
 <div class="col-6 col-md-3"><p class="eyebrow">Explora</p><a href="{{ route('properties.index') }}">Terrenos</a><a href="{{ route('about') }}">Nosotros</a></div>
 <div class="col-6 col-md-3"><p class="eyebrow">Conversemos</p><a href="{{ route('contact') }}">Contacto</a><a href="{{ route('advisors') }}">Asesores</a></div>
+</div><div class="pb-4">
+@if(!empty($siteSettings['contact_email']))<a href="mailto:{{ $siteSettings['contact_email'] }}">{{ $siteSettings['contact_email'] }}</a>@endif
+@if(!empty($siteSettings['contact_phone']))<a href="tel:{{ preg_replace('/[^+0-9]/', '', $siteSettings['contact_phone']) }}">{{ $siteSettings['contact_phone'] }}</a>@endif
+@if(!empty($siteSettings['office_hours']))<p>{{ $siteSettings['office_hours'] }}</p>@endif
 </div><div class="footer-bottom d-flex flex-wrap justify-content-between gap-3"><span>© {{ date('Y') }} Horizonte</span><span>Consulta disponibilidad y condiciones de cada propiedad.</span></div></div></footer>
 @unless(request()->routeIs('prototype.*'))<x-chatbot />@endunless
 </body></html>

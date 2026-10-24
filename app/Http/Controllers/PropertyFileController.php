@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Advisor;
+use App\Models\Property;
 use App\Models\PropertyDocument;
 use App\Models\PropertyImage;
 use Illuminate\Support\Facades\Storage;
@@ -21,7 +22,7 @@ class PropertyFileController extends Controller
 
     public function image(PropertyImage $image)
     {
-        abort_unless($image->property && $image->property->publication_status->value === 'publicado', 404);
+        abort_unless($image->property && Property::publiclyVisible()->whereKey($image->property_id)->exists(), 404);
         $this->checkPath($image->path, 'property-images/');
         $disk = Storage::disk('local');
         abort_unless(in_array($disk->mimeType($image->path), ['image/jpeg', 'image/png', 'image/webp']), 404);
@@ -31,7 +32,7 @@ class PropertyFileController extends Controller
 
     public function document(PropertyDocument $document)
     {
-        abort_unless($document->is_public && $document->property && $document->property->publication_status->value === 'publicado', 404);
+        abort_unless($document->is_public && $document->property && Property::publiclyVisible()->whereKey($document->property_id)->exists(), 404);
         $this->checkPath($document->path, 'property-documents/');
         abort_unless(Storage::disk('local')->mimeType($document->path) === 'application/pdf', 404);
 

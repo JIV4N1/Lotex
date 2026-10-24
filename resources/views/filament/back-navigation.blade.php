@@ -4,12 +4,12 @@
         ? url(implode('/', array_slice($segments, 0, 2)))
         : \App\Filament\Pages\Dashboard::getUrl();
 @endphp
-@if(! request()->routeIs('filament.admin.pages.dashboard'))
+@if(! request()->routeIs('filament.*.pages.dashboard'))
     <nav class="hz-back-navigation" aria-label="Navegación de regreso">
         <a href="{{ $fallback }}" class="hz-back-link" x-data x-on:click="
             if (document.referrer && window.history.length > 1) {
                 const previous = new URL(document.referrer);
-                if (previous.origin === location.origin && previous.pathname.startsWith('/admin') && previous.pathname !== '/admin/login' && previous.href !== location.href) {
+                if (previous.origin === location.origin && previous.pathname.startsWith('/{{ \Filament\Facades\Filament::getCurrentPanel()->getPath() }}/') && !previous.pathname.endsWith('/login') && previous.href !== location.href) {
                     $event.preventDefault();
                     window.history.back();
                 }

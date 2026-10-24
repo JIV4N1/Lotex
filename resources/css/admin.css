@@ -5,3 +5,26 @@
 .hz-welcome{display:flex;align-items:center;justify-content:space-between;gap:24px;background:#173e32;color:#fffdf6;border-radius:18px;padding:32px;box-shadow:0 8px 24px #173e3210}.hz-eyebrow{font-size:10px;font-weight:700;letter-spacing:.16em}.hz-welcome .hz-eyebrow{color:#d9c7a2}.hz-welcome h2{font-size:clamp(23px,3vw,32px);font-weight:600;letter-spacing:-.035em;margin:10px 0}.hz-welcome p{color:#d7e4dc;font-size:14px;max-width:540px}.hz-action{background:#e7d6b3;color:#163b30;border-radius:9px;padding:13px 18px;font-weight:700;font-size:13px;white-space:nowrap}.hz-action:hover{background:#f1e3c7}.hz-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.hz-stat,.hz-card{background:#fffdf9;border:1px solid #e1e5dc;border-radius:16px}.hz-stat{padding:22px}.hz-stat h2{font-size:13px;color:#4f6559;font-weight:600}.hz-stat strong{font-size:34px;display:block;font-weight:600;letter-spacing:-.04em;margin:8px 0}.hz-stat p{font-size:12px;color:#647066}.hz-workspace{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}.hz-card{overflow:hidden}.hz-card header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:24px;border-bottom:1px solid #e5e8df}.hz-card h2{font-size:20px;font-weight:600;margin-top:6px;letter-spacing:-.025em}.hz-card header a{font-size:12px;font-weight:600;white-space:nowrap;color:#245440}.hz-lead{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid #edf0e8}.hz-lead:hover,.hz-shortcut:hover{background:#f1f5ed}.hz-lead strong,.hz-shortcut strong{font-size:14px;display:block}.hz-lead span,.hz-shortcut span{font-size:12px;color:#526357;display:block;margin-top:5px}.hz-lead small{font-size:11px;color:#68736a;display:block;margin-top:6px}.hz-lead-status{text-align:right;flex-shrink:0}.hz-lead-status span{background:#e9eee3;padding:4px 9px;border-radius:20px}.hz-shortcut{display:block;padding:22px 24px;border-bottom:1px solid #edf0e8}.hz-empty{padding:40px 24px;color:#536358}.hz-empty h3{font-weight:600;color:#254537}.hz-empty p{font-size:14px;line-height:1.7;margin-top:10px}.hz-welcome a:focus-visible,.hz-card a:focus-visible{outline:3px solid #aa8549;outline-offset:-3px}.hz-lead>div:first-child{min-width:0;overflow-wrap:anywhere}
 @media(max-width:1100px){.hz-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.hz-workspace{grid-template-columns:1fr}.hz-welcome{align-items:flex-start;flex-direction:column}}
 @media(max-width:540px){.hz-welcome{padding:24px}.hz-stat{padding:16px}.hz-stat p{line-height:1.5}.hz-card header{padding:20px}.hz-lead{padding:18px;align-items:flex-start}.hz-action{white-space:normal}.hz-card h2{font-size:18px}}
+
+.hz-supervision-table{width:100%;border-collapse:collapse;text-align:left}.hz-supervision-table th,.hz-supervision-table td{padding:14px;border-bottom:1px solid #ddd;white-space:nowrap}.hz-supervision-table a{text-decoration:underline;color:#245440}
+
+/* Filament toggles .dark on the root; public Bootstrap styles stay separate. */
+.dark .fi-body{background:#101b17;color:#e6eee8}
+.dark .fi-sidebar-header,.dark .fi-topbar{background:#18251f}
+.dark .fi-sidebar{background:#14211b;border-color:#35473c}
+.dark .fi-sidebar-item-active .fi-sidebar-item-btn{background:#294b3b}
+.dark .fi-simple-main{border-top-color:#88bba0}
+.dark .hz-stat,.dark .hz-card{background:#1b2a22;border-color:#3a4c40;color:#edf3ee}
+.dark .hz-stat h2,.dark .hz-stat p,.dark .hz-lead span,.dark .hz-shortcut span,.dark .hz-lead small,.dark .hz-empty{color:#bfcec3}
+.dark .hz-card header,.dark .hz-lead,.dark .hz-shortcut,.dark .hz-supervision-table th,.dark .hz-supervision-table td{border-color:#3a4c40}
+.dark .hz-card header a,.dark .hz-supervision-table a,.dark .hz-stat>a{color:#a8ddbc}
+.dark .hz-empty h3{color:#e5f0e8}
+.dark .hz-lead:hover,.dark .hz-shortcut:hover{background:#263d30}
+.dark .hz-lead-status span{background:#304b3a;color:#e5f0e8}
+.dark .hz-back-link{background:#1b2a22;border-color:#49604f;color:#b9e4c9}
+.dark .hz-back-link:hover{background:#294331}
+.dark .hz-chat-note{background:#1b2a22;border-color:#49604f;color:#d4e2d8}
+.dark .hz-usage-progress{accent-color:#a8ddbc}
+.dark .fi-body :focus-visible{outline-color:#e4c78f}
+.dark .hz-welcome{background:#203f32;box-shadow:none}
+.dark .hz-welcome a:focus-visible,.dark .hz-card a:focus-visible{outline-color:#e4c78f}

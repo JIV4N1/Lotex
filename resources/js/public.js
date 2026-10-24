@@ -73,6 +73,51 @@ if (chat) {
     const welcome = messages.firstElementChild.cloneNode(true);
     const input = chat.querySelector('#chat-message');
     const status = chat.querySelector('.chat-status');
+    // Keep the lower-right corner anchored while dragging the exposed edges.
+    const resizeChat = (width, height) => {
+        const bounds = getComputedStyle(dialog);
+        const maxWidth = parseFloat(bounds.maxWidth);
+        const maxHeight = parseFloat(bounds.maxHeight);
+        dialog.style.setProperty('--chat-width', `${Math.min(maxWidth, Math.max(320, width))}px`);
+        dialog.style.setProperty('--chat-height', `${Math.min(maxHeight, Math.max(380, height))}px`);
+    };
+    chat.querySelectorAll('[data-resize]').forEach(handle => {
+        let drag = null;
+        const finish = () => {
+            drag = null;
+            dialog.classList.remove('chat-resizing');
+        };
+        handle.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
+            const rect = dialog.getBoundingClientRect();
+            drag = {x: event.clientX, y: event.clientY, width: rect.width, height: rect.height};
+            handle.setPointerCapture(event.pointerId);
+            dialog.classList.add('chat-resizing');
+            event.preventDefault();
+        });
+        handle.addEventListener('pointermove', event => {
+            if (!drag) return;
+            resizeChat(
+                drag.width + (handle.dataset.resize !== 'top' ? drag.x - event.clientX : 0),
+                drag.height + (handle.dataset.resize !== 'left' ? drag.y - event.clientY : 0),
+            );
+        });
+        handle.addEventListener('pointerup', finish);
+        handle.addEventListener('pointercancel', finish);
+        handle.addEventListener('lostpointercapture', finish);
+        dialog.addEventListener('close', finish);
+        handle.addEventListener('keydown', event => {
+            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+            event.preventDefault();
+            const rect = dialog.getBoundingClientRect();
+            const dx = handle.dataset.resize === 'top' ? 0 : event.key === 'ArrowLeft' ? 20 : event.key === 'ArrowRight' ? -20 : 0;
+            const dy = handle.dataset.resize === 'left' ? 0 : event.key === 'ArrowUp' ? 20 : event.key === 'ArrowDown' ? -20 : 0;
+            resizeChat(rect.width + dx, rect.height + dy);
+        });
+    });
+    const revealStart = (item) => {
+        messages.scrollTop += item.getBoundingClientRect().top - messages.getBoundingClientRect().top - 12;
+    };
     const controls = [...chat.querySelectorAll('form button, [data-chat-topic]')];
     let history = [];
     let pending = null;
@@ -82,10 +127,13 @@ if (chat) {
         const speaker = document.createElement('span');
         speaker.className = 'chat-speaker';
         speaker.textContent = author;
-        item.append(speaker, document.createTextNode(text));
+        const content = document.createElement('div');
+        content.className = 'chat-message-text';
+        content.textContent = text;
+        item.append(speaker, content);
         messages.append(item);
         while (messages.children.length > 21) messages.children[1].remove();
-        messages.scrollTop = messages.scrollHeight;
+        revealStart(item);
         return item;
     };
     const send = async (text) => {
@@ -132,7 +180,7 @@ if (chat) {
                 item.append(card);
             }
             history = [...history, text].slice(-6);
-            messages.scrollTop = messages.scrollHeight;
+            revealStart(item);
         } catch (error) {
             if (pending === controller) bubble('No pude conectar con el asistente. Puedes intentar otra vez o explorar el catálogo.', 'Horizonte');
         } finally {
