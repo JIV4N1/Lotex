@@ -6,7 +6,6 @@ chown -R www-data:www-data storage bootstrap/cache
 chmod -R u=rwX,g=rX,o= storage bootstrap/cache
 # Never migrate automatically or regenerate APP_KEY on container restart.
 php artisan config:cache
-php artisan security:check --no-interaction
 php artisan route:cache
 php artisan view:cache
 chown -R www-data:www-data bootstrap/cache storage/framework/views
