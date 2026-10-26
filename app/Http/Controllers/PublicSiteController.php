@@ -13,7 +13,7 @@ class PublicSiteController extends Controller
 {
     public function home(PropertyCatalog $catalog): View
     {
-        return view('home', ['featured' => $catalog->featured(), 'zones' => $catalog->zones()]);
+        return view('home', ['properties' => $catalog->filtered([]), 'zones' => $catalog->zones()]);
     }
 
     public function index(Request $request, PropertyCatalog $catalog): View|RedirectResponse

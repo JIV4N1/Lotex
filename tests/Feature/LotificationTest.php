@@ -28,6 +28,20 @@ class LotificationTest extends PostgresTestCase
         return Property::create(array_merge(['lotification_id' => $group->id, 'block' => '1', 'lot_number' => '1', 'price_mxn' => 350000, 'area_m2' => 120, 'publication_status' => 'publicado'], $values));
     }
 
+    public function test_home_shows_all_catalog_publications_without_featured_flag_and_groups_lots(): void
+    {
+        $group = $this->group();
+        $this->lot($group);
+        $this->lot($group, ['lot_number' => '2']);
+        $independent = $this->makeProperty(['code' => 'HOME-ONE', 'slug' => 'home-one', 'is_featured' => false]);
+        $this->makeProperty(['code' => 'HOME-DRAFT', 'slug' => 'home-draft', 'publication_status' => 'borrador', 'is_featured' => true]);
+        $this->get('/')->assertOk()->assertSee('Todas nuestras publicaciones')
+            ->assertViewHas('properties', fn ($items) => $items->count() === 2
+                && $items->pluck('slug')->contains($group->slug)
+                && $items->pluck('slug')->contains($independent->slug))
+            ->assertDontSee('/terrenos/home-draft', false);
+    }
+
     public function test_catalog_groups_lots_and_inherits_shared_details_and_filters(): void
     {
         $group = $this->group();

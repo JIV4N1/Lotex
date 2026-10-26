@@ -9,10 +9,10 @@ Aplicación Laravel 12 + Blade, Bootstrap 5 y Vite. Filament permite administrar
 3. En Terrenos → Crear, captura título, clave y slug únicos, descripción, precio MXN, superficie, medidas opcionales, zona, referencia, coordenadas, servicios, acceso, topografía, uso de suelo, resumen documental y condiciones de pago.
 4. Añade fotografías JPG/PNG/WebP de hasta 5 MB, con texto alternativo. Reordénalas para elegir la portada: se usa la primera. Máximo 30 fotografías por terreno.
 5. Añade documentos o planos PDF de hasta 10 MB (máximo 20). Puedes indicar tipo, emisor y fecha. Son privados por defecto. Marca «Autorizar consulta pública» solo para una versión revisada y sin información reservada.
-6. Guarda como Borrador para trabajar en privado o selecciona Publicado para mostrarlo en el catálogo. Disponibilidad (disponible/apartado/vendido) y Destacado son independientes.
+6. Guarda como Borrador para trabajar en privado o selecciona Publicado para mostrarlo en el catálogo. La disponibilidad (disponible/apartado/vendido) es independiente de la publicación. Todas las fichas del catálogo aparecen automáticamente en Inicio.
 7. Edita desde la tabla. Eliminar mueve el terreno a la papelera y retira su ficha y archivos de las rutas públicas. Filtra por eliminados y usa Restaurar para recuperarlo. No existe una acción de eliminación definitiva.
 
-El sitio consulta App\Catalog\PropertyCatalog y ya no usa fixtures. Un catálogo vacío es normal hasta publicar el primer terreno. Solo los destacados publicados aparecen en la selección de Inicio. La maqueta /prototipo/administracion se conserva como referencia local, pero no guarda datos: usa /admin para trabajar.
+El sitio consulta App\Catalog\PropertyCatalog y ya no usa fixtures. Un catálogo vacío es normal hasta publicar el primer terreno. Inicio muestra todas las publicaciones del catálogo, sin requerir marcar destacado; cada lotificación aparece una sola vez y necesita al menos un lote publicado y disponible. La maqueta /prototipo/administracion se conserva como referencia local, pero no guarda datos: usa /admin para trabajar.
 
 ### Archivos y permisos
 Las fotografías y documentos se guardan en storage/app/private, con nombres aleatorios. Se sirven mediante rutas que comprueban publicación, borrado lógico y autorización pública del documento. No necesitas storage:link para estos archivos. El panel usa URLs temporales para previsualizar archivos privados. No compartas esas URLs.

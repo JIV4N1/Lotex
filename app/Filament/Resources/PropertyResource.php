@@ -23,7 +23,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -73,7 +72,6 @@ class PropertyResource extends Resource
                 TextInput::make('price_mxn')->label('Precio total (MXN)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0)->maxValue(99999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification'))->visible(fn (Get $get) => ! $get('is_lotification')),
                 TextInput::make('area_m2')->label('Superficie (m²)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0.01)->maxValue(999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification'))->visible(fn (Get $get) => ! $get('is_lotification')),
                 Textarea::make('description')->label('Descripción para el visitante')->placeholder('Describe el entorno y lo que conoces del terreno. No es necesario prometer servicios ni usos que no estén confirmados.')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('lotification_id'))->rows(4)->maxLength(20000)->columnSpanFull(),
-                Toggle::make('is_featured')->label('Destacar en Inicio cuando esté publicado')->default(false),
             ]),
             Section::make('Cómo llegar y medidas adicionales')->description('Opcional. Puedes dejar estos campos vacíos si aún no tienes la información.')->collapsed()->columns(2)->schema([
                 TextInput::make('frontage_m')->label('Frente (m)')->numeric()->minValue(0.01)->maxValue(9999999999.99)->step('0.01'),
@@ -126,7 +124,6 @@ class PropertyResource extends Resource
             TextColumn::make('area_m2')->label('m²')->placeholder('Por completar')->numeric(decimalPlaces: 2)->sortable(),
             TextColumn::make('publication_status')->label('Publicación')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
             TextColumn::make('availability_status')->label('Disponibilidad')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
-            IconColumn::make('is_featured')->label('Destacado')->boolean(),
         ])->defaultSort('created_at', 'desc')->paginationPageOptions([25, 50, 100])->toolbarActions([
             BulkAction::make('availability')->label('Cambiar disponibilidad')->requiresConfirmation()
                 ->modalDescription('Se aplicará a todos los registros seleccionados. No cambia su publicación en la web.')
