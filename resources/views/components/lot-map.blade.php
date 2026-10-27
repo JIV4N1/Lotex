@@ -1,9 +1,10 @@
 @props(['columns', 'inventory', 'slug'])
 @php($plan = str_starts_with($slug, 'villa-de-oshun') ? 'villa-de-oshun' : 'santa-martha-ii')
+@php($geometry = json_decode(file_get_contents(resource_path('data/'.$plan.'.json')), true))
 <section class="lot-map-section" aria-labelledby="lot-map-title" data-lot-map>
     <div class="lot-map-heading">
-        <div><p class="eyebrow mb-2">Plano de referencia</p><h2 id="lot-map-title">Ubica tu lote</h2>
-            <p class="muted mb-0">Amplía el plano original para identificar la manzana y el lote. Consulta su precio y disponibilidad actuales en el selector; los importes impresos en el plano pueden haber cambiado.</p></div>
+        <div><p class="eyebrow mb-2">Distribución de lotes</p><h2 id="lot-map-title">Ubica tu lote</h2>
+            <p class="muted mb-0">Selecciona manzana y lote para consultar sus datos. El dibujo muestra únicamente las divisiones de los terrenos.</p></div>
     </div>
     <div class="row g-4 align-items-start">
         <div class="col-xl-8">
@@ -11,10 +12,16 @@
                 <button type="button" class="btn btn-outline-horizon" data-plan-zoom="-1" aria-label="Reducir plano">−</button>
                 <button type="button" class="btn btn-outline-horizon" data-plan-zoom="1" aria-label="Ampliar plano">+</button>
                 <button type="button" class="btn btn-outline-horizon" data-plan-zoom="0">Ajustar</button>
-                <a href="{{ asset('images/lot-plans/'.$plan.'.jpg') }}" target="_blank" rel="noopener">Abrir plano original ↗</a>
+
             </div>
-            <div class="lot-map-viewport" role="region" aria-label="Plano original; desplázate para recorrerlo" tabindex="0">
-                <img data-plan-image src="{{ asset('images/lot-plans/'.$plan.'.jpg') }}" alt="Plano original de la lotificación con manzanas, numeración y límites de cada lote" style="width:100%;max-width:none;height:auto;display:block">
+            <div class="lot-map-viewport" role="region" aria-label="Distribución de lotes; desplázate para recorrerla" tabindex="0">
+                <svg data-plan-image viewBox="{{ $geometry['viewBox'] }}" style="width:100%;max-width:none;display:block" aria-label="Distribución de las divisiones y números de lote" role="img">
+                    @foreach($geometry['lots'] as $shape)
+                        @php($points = collect($shape['points'])->map(fn($point) => implode(',', $point))->implode(' '))
+                        <polygon points="{{ $points }}" fill="#edf3e8" stroke="#245440" stroke-width="2" />
+                        <text x="{{ collect($shape['points'])->avg(fn($p) => $p[0]) }}" y="{{ collect($shape['points'])->avg(fn($p) => $p[1]) }}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#173e35">M{{ $shape['block'] }} · {{ $shape['number'] }}</text>
+                    @endforeach
+                </svg>
                 <div hidden class="lot-map-board" style="--map-columns: {{ count($columns) }}">
                     @foreach($columns as $column)
                         @if(isset($column['road']))
@@ -44,7 +51,7 @@
                     @endforeach
                 </div>
             </div>
-            <p class="small muted mt-2 mb-0">El plano conserva la distribución original. Usa los controles para ampliar y las barras de desplazamiento para recorrerlo.</p>
+            <p class="small muted mt-2 mb-0">Usa los controles para ampliar y las barras de desplazamiento para recorrer la distribución.</p>
         </div>
         <div class="col-xl-4">
             <div class="lot-map-info">
