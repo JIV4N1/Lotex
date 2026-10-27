@@ -229,3 +229,31 @@ body:has(.visit-dialog[open]) .chat-launcher{visibility:hidden}
 .chat-property p{font-size:.9rem;line-height:1.65}
 .chat-messages{scrollbar-gutter:stable}
 @media(max-width:575.98px){.chat-dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 150px - env(safe-area-inset-bottom))}}
+
+/* Lotification sketch: the repeated plots show relative order, never surveyed geometry. */
+.lot-map-section{margin:2rem 0 2.5rem;padding:clamp(1rem,3vw,2rem);background:#f7f7f1;border:1px solid #d9e1d7;border-radius:16px}
+.lot-map-heading{max-width:68ch}
+.lot-map-key{display:flex;flex-wrap:wrap;gap:.65rem 1.2rem;margin:1.25rem 0;font-size:.85rem}
+.lot-map-key>span{display:inline-flex;align-items:center;gap:.45rem}
+.lot-map-key-color{display:inline-block;width:1.15rem;height:1.15rem;border:1px solid;border-radius:4px}
+.lot-map-key-color.is-available,.lot-map-plot.is-disponible{background:#d9ecda;border-color:#548764;color:#123e2b}
+.lot-map-key-color.is-reserved,.lot-map-plot.is-apartado{background:#f4e6c6;border-color:#9c7132;color:#523912}
+.lot-map-key-color.is-sold,.lot-map-plot.is-vendido{background:#e0e1df;border-color:#777e79;color:#303d36}
+.lot-map-key-color.is-unlisted,.lot-map-plot.is-unlisted{background:#fff;border-color:#a5afa8;color:#59635b}
+.lot-map-viewport{max-height:640px;overflow:auto;overscroll-behavior:contain;background:#eef1ea;border:1px solid #ccd7cb;border-radius:12px;padding:1rem;scrollbar-gutter:stable}
+.lot-map-viewport:focus-visible{outline:3px solid #9a743d;outline-offset:2px}
+.lot-map-board{display:grid;grid-template-columns:repeat(var(--map-columns),minmax(72px,1fr));gap:8px;min-width:max(590px,100%);align-items:start}
+.lot-map-lane{display:flex;flex-direction:column;gap:5px;min-width:0}
+.lot-map-lane h3{font:600 .72rem/1.3 system-ui,sans-serif;min-height:2.7em;margin:0;text-align:center;color:#173e35}
+.lot-map-plot{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:44px;border:1.5px solid;border-radius:5px;font:700 .85rem/1 system-ui,sans-serif;text-align:center;text-decoration:none;transition:background-color .15s,box-shadow .15s,transform .15s;cursor:pointer}
+.lot-map-plot small{font-size:.75rem;font-weight:600;line-height:1.3}
+button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.is-selected{position:relative;z-index:1;outline:3px solid #245440;outline-offset:1px;box-shadow:0 3px 10px #173e3533;transform:scale(1.04)}
+.lot-map-plot.is-unlisted{border-style:dashed}
+.lot-map-road{display:flex;justify-content:center;align-items:center;min-height:100%;background:#e6e4d9;border:1px dashed #b4ae98;border-radius:6px}
+.lot-map-road span{writing-mode:vertical-rl;text-align:center;text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;font-weight:700;color:#595b51}
+.lot-map-info{position:sticky;top:1rem;padding:1.3rem;background:#fffdf8;border:1px solid #d9e1d7;border-radius:12px}
+.lot-map-summary{min-height:5rem;padding:1rem;background:#eef3e9;border-radius:8px}
+.lot-map-info [hidden]{display:none!important}
+@media(max-width:1199.98px){.lot-map-info{position:static}}
+@media(max-width:575.98px){.lot-map-section{margin-inline:-.75rem}.lot-map-board{min-width:590px}.lot-map-viewport{max-height:520px}}
+@media(prefers-reduced-motion:reduce){.lot-map-plot{transition:none}button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.is-selected{transform:none}}

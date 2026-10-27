@@ -1,5 +1,6 @@
 import 'bootstrap/js/dist/collapse';
 import './motion';
+import './lot-map';
 
 document.querySelectorAll('[data-gallery]').forEach((gallery) => {
     const main = gallery.querySelector('.gallery-main');

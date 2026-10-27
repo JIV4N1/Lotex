@@ -14,14 +14,11 @@
 <h3 class="h5 mt-4">Plano y documentación</h3><p>{{ $property['documents'] }}</p>@forelse($property['document_files'] as $document)<a class="d-block mb-2" href="{{ $document['url'] }}">{{ $document['title'] }} · Descargar PDF</a>@empty<p class="muted">Documentos públicos pendientes de incorporar.</p>@endforelse
 <p class="small muted">Consulta las condiciones particulares de cada lote. Publicar un documento no certifica su validez jurídica.</p></section>
 <section id="lotes"><h2>Elige tu lote</h2><p>Consulta sus medidas y precio; después solicita una visita con tu nombre y WhatsApp.</p>
+@if($lotMap)<x-lot-map :columns="$lotMap" :inventory="$inventory" />@endif
 <div class="border rounded p-3 mb-4">
 <h3 class="h5">Disponibilidad general</h3>
-<p class="small">Inventario completo publicado, independiente de los filtros. Es un resumen por manzana, no un plano a escala.</p>
-<p>@foreach(['disponible'=>'Disponibles','apartado'=>'Apartados','vendido'=>'Vendidos'] as $status=>$label)<span class="me-3">{{ $label }}: <strong>{{ $inventory->where('availability_status.value', $status)->count() }}</strong></span>@endforeach</p>
-@foreach($inventory->groupBy('block') as $block=>$items)
-<h4 class="h6 mt-3">Manzana {{ $block }}</h4><div class="d-flex flex-wrap gap-2">
-@foreach($items as $item)<a class="btn btn-sm {{ $item->availability_status->value === 'disponible' ? 'btn-outline-horizon' : 'btn-light border' }}" href="{{ route('properties.show', $item->slug) }}" aria-label="Manzana {{ $block }}, lote {{ $item->lot_number }}, {{ $item->availability_status->value }}">Lote {{ $item->lot_number }} · {{ ucfirst($item->availability_status->value) }}</a>@endforeach
-</div>@endforeach
+<p class="small mb-2">Inventario completo publicado, independiente de los filtros.</p>
+<p class="mb-0">@foreach(['disponible'=>'Disponibles','apartado'=>'Apartados','vendido'=>'Vendidos'] as $status=>$label)<span class="me-3">{{ $label }}: <strong>{{ $inventory->where('availability_status.value', $status)->count() }}</strong></span>@endforeach</p>
 </div>
 @if($errors->any())<p class="alert alert-warning" role="alert">Revisa los filtros: usa importes y superficies no negativos.</p>@endif
 <form method="get" action="{{ route('properties.show',$property['slug']) }}#lotes" class="row g-3 mb-4">

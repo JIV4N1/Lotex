@@ -78,6 +78,22 @@ class LotificationTest extends PostgresTestCase
         $this->get(route('properties.show', $lot->slug))->assertNotFound();
     }
 
+    public function test_santa_martha_croquis_links_only_published_lots_with_current_availability(): void
+    {
+        $group = $this->makeProperty(['is_lotification' => true, 'code' => 'SMII', 'slug' => 'santa-martha']);
+        $available = $this->lot($group, ['lot_number' => '1']);
+        $reserved = $this->lot($group, ['lot_number' => '2', 'availability_status' => 'apartado']);
+
+        $this->get('/terrenos/santa-martha')->assertOk()
+            ->assertSee('Ubica tu lote')
+            ->assertSee('data-map-lot="1:1"', false)
+            ->assertSee('data-map-lot="1:2"', false)
+            ->assertSee('is-apartado', false)
+            ->assertSee(route('properties.show', $available->slug))
+            ->assertSee(route('properties.show', $reserved->slug))
+            ->assertDontSee('data-map-lot="1:3"', false);
+    }
+
     public function test_admin_can_create_group_and_lot_without_duplicate_common_data(): void
     {
         $zone = $this->makeProperty()->zone_id;
