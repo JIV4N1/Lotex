@@ -1,19 +1,21 @@
-@props(['columns', 'inventory'])
+@props(['columns', 'inventory', 'slug'])
+@php($plan = str_starts_with($slug, 'villa-de-oshun') ? 'villa-de-oshun' : 'santa-martha-ii')
 <section class="lot-map-section" aria-labelledby="lot-map-title" data-lot-map>
     <div class="lot-map-heading">
-        <div><p class="eyebrow mb-2">Croquis interactivo</p><h2 id="lot-map-title">Ubica tu lote</h2>
-            <p class="muted mb-0">Selecciona un lote para ver su precio, superficie y disponibilidad. El croquis muestra la distribución relativa, sin escala ni linderos exactos.</p></div>
-    </div>
-    <div class="lot-map-key" aria-label="Disponibilidad por color y texto">
-        <span><i class="lot-map-key-color is-available" aria-hidden="true"></i> Disponible</span>
-        <span><i class="lot-map-key-color is-reserved" aria-hidden="true"></i> Apartado</span>
-        <span><i class="lot-map-key-color is-sold" aria-hidden="true"></i> Vendido</span>
-        <span><i class="lot-map-key-color is-unlisted" aria-hidden="true"></i> Sin publicación</span>
+        <div><p class="eyebrow mb-2">Plano de referencia</p><h2 id="lot-map-title">Ubica tu lote</h2>
+            <p class="muted mb-0">Amplía el plano original para identificar la manzana y el lote. Consulta su precio y disponibilidad actuales en el selector; los importes impresos en el plano pueden haber cambiado.</p></div>
     </div>
     <div class="row g-4 align-items-start">
         <div class="col-xl-8">
-            <div class="lot-map-viewport" role="region" aria-label="Croquis de lotes; desliza para recorrerlo" tabindex="0">
-                <div class="lot-map-board" style="--map-columns: {{ count($columns) }}">
+            <div class="d-flex gap-2 mb-2 flex-wrap" aria-label="Controles del plano">
+                <button type="button" class="btn btn-outline-horizon" data-plan-zoom="-1" aria-label="Reducir plano">−</button>
+                <button type="button" class="btn btn-outline-horizon" data-plan-zoom="1" aria-label="Ampliar plano">+</button>
+                <button type="button" class="btn btn-outline-horizon" data-plan-zoom="0">Ajustar</button>
+                <a href="{{ asset('images/lot-plans/'.$plan.'.jpg') }}" target="_blank" rel="noopener">Abrir plano original ↗</a>
+            </div>
+            <div class="lot-map-viewport" role="region" aria-label="Plano original; desplázate para recorrerlo" tabindex="0">
+                <img data-plan-image src="{{ asset('images/lot-plans/'.$plan.'.jpg') }}" alt="Plano original de la lotificación con manzanas, numeración y límites de cada lote" style="width:100%;max-width:none;height:auto;display:block">
+                <div hidden class="lot-map-board" style="--map-columns: {{ count($columns) }}">
                     @foreach($columns as $column)
                         @if(isset($column['road']))
                             <div class="lot-map-road" aria-label="{{ $column['road'] }}"><span>{{ $column['road'] }}</span></div>
@@ -42,7 +44,7 @@
                     @endforeach
                 </div>
             </div>
-            <p class="small muted mt-2 mb-0">Recorre el croquis desplazándolo; también puedes elegir un lote en la lista. La posición es orientativa y debe confirmarse durante la visita.</p>
+            <p class="small muted mt-2 mb-0">El plano conserva la distribución original. Usa los controles para ampliar y las barras de desplazamiento para recorrerlo.</p>
         </div>
         <div class="col-xl-4">
             <div class="lot-map-info">
@@ -54,7 +56,7 @@
                     @endforeach
                 </select>
                 <div class="lot-map-summary mt-4" data-map-summary aria-live="polite" aria-atomic="true">
-                    <p class="muted mb-0">Toca un lote en el croquis o selecciónalo arriba para ver sus datos.</p>
+                    <p class="muted mb-0">Selecciona manzana y lote para consultar sus datos actuales.</p>
                 </div>
                 <a class="btn btn-horizon mt-3 w-100" data-map-link hidden>Ver ficha del lote →</a>
             </div>

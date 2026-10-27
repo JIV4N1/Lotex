@@ -1,4 +1,13 @@
 document.querySelectorAll('[data-lot-map]').forEach((map) => {
+    const planImage = map.querySelector('[data-plan-image]');
+    let zoom = 1;
+    map.querySelectorAll('[data-plan-zoom]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const direction = Number(button.dataset.planZoom);
+            zoom = direction === 0 ? 1 : Math.min(4, Math.max(1, zoom + direction * .5));
+            planImage.style.width = `${zoom * 100}%`;
+        });
+    });
     const picker = map.querySelector('[data-map-picker]');
     const summary = map.querySelector('[data-map-summary]');
     const detailLink = map.querySelector('[data-map-link]');
@@ -19,7 +28,7 @@ document.querySelectorAll('[data-lot-map]').forEach((map) => {
         summary.replaceChildren(heading, details);
         detailLink.href = plot.dataset.mapUrl;
         detailLink.hidden = false;
-        if (scroll) plot.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        if (scroll && !planImage) plot.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         if (reveal && window.matchMedia('(max-width: 1199.98px)').matches) {
             summary.scrollIntoView({ block: 'nearest' });
         }
