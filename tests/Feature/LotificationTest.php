@@ -61,6 +61,20 @@ class LotificationTest extends PostgresTestCase
         $this->assertEquals(385000, $catalog->filtered([])->first()['price']);
     }
 
+    public function test_public_map_requires_review_and_uses_current_lot_id(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        $group = $this->group();
+        $lot = $this->lot($group);
+        $map = ['viewBox'=>'0 0 100 100','lots'=>[['id'=>$lot->id,'block'=>'OLD','number'=>'999','points'=>[[0,0],[100,0],[100,100],[0,100]]]]];
+        $path = 'lot-maps/'.$group->id.'.json';
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, json_encode($map));
+        $this->get('/terrenos/'.$group->slug)->assertOk()->assertDontSee('data-plan-image', false)->assertSee('La distribución visual está en revisión');
+        $map['reviewed'] = true;
+        \Illuminate\Support\Facades\Storage::disk('local')->put($path, json_encode($map));
+        $this->get('/terrenos/'.$group->slug)->assertOk()->assertSee('data-shape-key="1:1"', false)->assertSee('Quiero visitar este lote')->assertDontSee('MOLD');
+    }
+
     public function test_hidden_parent_hides_lots_and_visits_target_exact_lot(): void
     {
         $group = $this->group();

@@ -259,3 +259,5 @@ button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.
 @media(prefers-reduced-motion:reduce){.lot-map-plot{transition:none}button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.is-selected{transform:none}}
 
 [data-shape-key]{cursor:pointer}[data-shape-key]:focus polygon,[data-shape-key]:hover polygon{stroke:#b57926;stroke-width:4}
+
+.lot-map-pending{padding:28px;background:#fffdf8;border:1px solid #d9e1d7;border-radius:12px;margin-bottom:18px}.lot-map-list{padding:20px;background:#fffdf8;border:1px solid #d9e1d7;border-radius:12px;margin-top:18px}.lot-map-list summary{cursor:pointer;min-height:32px}.lot-map-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}.lot-map-list .lot-map-plot{min-height:58px;gap:6px}[data-shape-key].is-selected polygon{stroke:#af7423;stroke-width:5;fill:#f4dba1}.lot-map-info{scroll-margin-top:110px}

@@ -52,6 +52,7 @@ class LotMapEditor extends Page
         abort_unless(static::canAccess(), 403);
         $parent = Property::where('is_lotification', true)->findOrFail($id);
         Validator::make($map, [
+            'reviewed'=>'required|accepted',
             'width'=>'required|integer|min:1|max:10000','height'=>'required|integer|min:1|max:10000',
             'lots'=>'required|array|min:1|max:1000','lots.*.id'=>'required|integer|distinct',
             'lots.*.points'=>'required|array|min:3|max:100', 'lots.*.points.*'=>'required|array|size:2',
@@ -66,7 +67,7 @@ class LotMapEditor extends Page
             $lot = $records[$shape['id']];
             $shapes[] = ['block'=>$lot->block, 'number'=>$lot->lot_number, 'id'=>$lot->id, 'points'=>$shape['points']];
         }
-        Storage::disk('local')->put('lot-maps/'.$parent->id.'.json', json_encode(['width'=>$map['width'],'height'=>$map['height'],'viewBox'=>'0 0 '.$map['width'].' '.$map['height'], 'lots'=>$shapes], JSON_THROW_ON_ERROR));
+        Storage::disk('local')->put('lot-maps/'.$parent->id.'.json', json_encode(['reviewed'=>true,'reviewed_by'=>auth()->id(),'reviewed_at'=>now()->toIso8601String(),'width'=>$map['width'],'height'=>$map['height'],'viewBox'=>'0 0 '.$map['width'].' '.$map['height'], 'lots'=>$shapes], JSON_THROW_ON_ERROR));
     }
 
     protected function getViewData(): array

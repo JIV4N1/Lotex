@@ -23,7 +23,7 @@
  }catch(e){this.message='No se pudo analizar el plano. El trazado actual se conserva.';}finally{this.busy=false;}
  },
  acceptProposal(){const existing=new Set(this.shapes.map(s=>s.id));this.shapes.push(...this.proposal.filter(s=>!existing.has(s.id)));this.proposal=[];this.message='Propuesta incorporada sin reemplazar los lotes ya trazados. Revisa cada contorno antes de publicar.';},
- async save(){if(!this.reviewed){this.message='Confirma la revisión del mapa antes de publicar.';return;}this.busy=true;this.message='';try{await $wire.saveMap(Number(this.group),{width:this.width,height:this.height,lots:this.shapes});this.message='Mapa publicado. La imagen guía no forma parte del mapa público.';}catch(e){this.message='No se pudo guardar. Revisa la lotificación y los polígonos.';}finally{this.busy=false;} }
+ async save(){if(!this.reviewed){this.message='Confirma la revisión del mapa antes de publicar.';return;}this.busy=true;this.message='';try{await $wire.saveMap(Number(this.group),{reviewed:this.reviewed,width:this.width,height:this.height,lots:this.shapes});this.message='Mapa publicado. La imagen guía no forma parte del mapa público.';}catch(e){this.message='No se pudo guardar. Revisa la lotificación y los polígonos.';}finally{this.busy=false;} }
 }">
 <header class="lt-intro">
 <div><span class="lt-kicker">ESTUDIO DE MAPAS</span><h2>Del plano al mapa de tus lotes</h2><p>Sube el plano y genera un mapa ilustrativo con los lotes vinculados a tu inventario.</p></div>
