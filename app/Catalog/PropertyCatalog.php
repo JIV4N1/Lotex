@@ -82,6 +82,7 @@ class PropertyCatalog
             'price_per_m2' => $p->price_per_m2, 'availability' => $p->is_lotification ? ($available->isNotEmpty() ? 'disponible' : 'vendido') : $p->availability_status->value,
             'featured' => $p->is_featured, 'date' => $p->created_at->toISOString(),
             'images' => $images ?: [['src' => asset('images/property-placeholder.svg'), 'alt' => 'Fotografía pendiente']],
+            'site_plan' => ($plan = $p->images->firstWhere('is_site_plan', true)) ? ['src'=>route('property-images.show', $plan), 'alt'=>$plan->alt_text] : null,
             'has_images' => count($images) > 0, 'description' => $p->description, 'services' => $p->services ?? [],
             'access' => $p->access ?: 'Por confirmar', 'topography' => $p->topography ?: 'Por confirmar',
             'land_use' => $p->land_use ?: 'Por confirmar', 'documents' => $p->documentary_summary ?: 'Por confirmar',

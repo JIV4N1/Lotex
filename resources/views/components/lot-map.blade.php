@@ -1,4 +1,4 @@
-@props(['columns', 'inventory', 'slug', 'propertyId'])
+@props(['columns', 'inventory', 'slug', 'propertyId', 'referencePlan' => null, 'title' => 'Lotificación'])
 @php($savedMap = 'lot-maps/'.$propertyId.'.json')
 @php($geometry = \Illuminate\Support\Facades\Storage::disk('local')->exists($savedMap) ? json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get($savedMap), true) : null)
 @php($geometry = is_array($geometry) && ($geometry['reviewed'] ?? false) === true && !($geometry['schematic'] ?? false) ? $geometry : null)
@@ -58,6 +58,15 @@
         </div>
         <div class="col-xl-4">
             <div class="lot-map-info">
+                <div class="lot-reference mb-4">
+                    <p class="eyebrow mb-1">Plano de referencia</p><h3 class="h5">{{ $title }}</h3>
+                    @if($referencePlan)
+                    <a href="{{ $referencePlan['src'] }}" target="_blank" rel="noopener" class="lot-reference-image" aria-label="Ampliar plano de {{ $title }} en otra pestaña"><img src="{{ $referencePlan['src'] }}" alt="{{ $referencePlan['alt'] }}" loading="lazy"><span>Ampliar plano ↗</span></a>
+                    <p class="small muted mt-2 mb-0">Localiza la manzana y el número en la imagen. Las medidas y disponibilidad actuales se muestran al seleccionar un lote.</p>
+                    @else
+                    <p class="small muted mb-0">La imagen pública del plano está pendiente. Puedes consultar las medidas de cada lote en el selector.</p>
+                    @endif
+                </div>
                 <label for="lot-map-picker" class="form-label fw-semibold">Elige manzana y lote</label>
                 <select id="lot-map-picker" class="form-select" data-map-picker>
                     <option value="">Selecciona un lote</option>

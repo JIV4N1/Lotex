@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PropertyImage extends Model
 {
-    protected $fillable = ['property_id', 'path', 'alt_text', 'position'];
+    protected $fillable = ['property_id', 'path', 'alt_text', 'position', 'is_site_plan'];
 
     protected function casts(): array
     {
-        return ['position' => 'integer'];
+        return ['position' => 'integer', 'is_site_plan' => 'boolean'];
     }
 
     public function property(): BelongsTo

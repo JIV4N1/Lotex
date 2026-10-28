@@ -91,6 +91,7 @@ class PropertyResource extends Resource
             Section::make('Fotografías')->description('La primera imagen ordenada será la portada. Reordena, edita el texto alternativo o quita fotografías.')->schema([
                 Repeater::make('images')->label('Galería')->relationship()->orderColumn('position')->defaultItems(0)->maxItems(30)->schema([
                     FileUpload::make('path')->label('Fotografía')->disk('local')->directory('property-images')->visibility('private')->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(5120)->preventFilePathTampering()->required(),
+                    \Filament\Forms\Components\Toggle::make('is_site_plan')->label('Usar como plano de referencia público')->helperText('Sube una versión limpia, sin datos personales ni información que no deba publicarse. Si marcas varias, se mostrará la primera según el orden de la galería.'),
                     TextInput::make('alt_text')->label('Descripción de la imagen')->required()->maxLength(255),
                 ])->addActionLabel('Añadir fotografía')->collapsible(),
             ]),
