@@ -40,10 +40,11 @@ class LotMapEditor extends Page
         foreach ($detected as $shape) {
             $identity = $shape['block'].':'.$shape['number'];
             if (! $known->has($identity) || isset($seen[$identity])) { $rejected++; continue; }
+            if (! \App\Services\LotPolygon::valid($shape['points'])) { $rejected++; continue; }
             $seen[$identity] = true;
             $result[] = ['id'=>$known[$identity]->id,'points'=>$shape['points']];
         }
-        return ['lots'=>$result,'rejected'=>$rejected,'missing'=>$lots->count()-count($result)];
+        return ['lots'=>$result,'rejected'=>$rejected,'missing'=>$lots->count()-count($result), 'missing_lots'=>$lots->reject(fn($lot)=>isset($seen[$lot->block.':'.$lot->lot_number]))->map(fn($lot)=>'M'.$lot->block.' · L'.$lot->lot_number)->values()->all()];
     }
 
     public function saveMap(int $id, array $map): void
@@ -61,6 +62,7 @@ class LotMapEditor extends Page
         foreach ($map['lots'] as $shape) {
             abort_unless($records->has($shape['id']), 422);
             foreach ($shape['points'] as $point) abort_if($point[0] > $map['width'] || $point[1] > $map['height'], 422);
+            abort_unless(\App\Services\LotPolygon::valid($shape['points']), 422);
             $lot = $records[$shape['id']];
             $shapes[] = ['block'=>$lot->block, 'number'=>$lot->lot_number, 'id'=>$lot->id, 'points'=>$shape['points']];
         }

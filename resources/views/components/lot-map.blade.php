@@ -16,11 +16,14 @@
 
             </div>
             <div class="lot-map-viewport" role="region" aria-label="Distribución de lotes; desplázate para recorrerla" tabindex="0">
-                <svg data-plan-image viewBox="{{ $geometry['viewBox'] }}" style="width:100%;max-width:none;display:block" aria-label="Distribución de las divisiones y números de lote" role="img">
+                <svg data-plan-image viewBox="{{ $geometry['viewBox'] }}" style="width:100%;max-width:none;display:block" aria-label="Distribución de las divisiones y números de lote" role="group">
                     @foreach($geometry['lots'] as $shape)
+                        @php($mappedLot = $inventory->first(fn($lot) => (string)$lot->block === (string)$shape['block'] && (string)$lot->lot_number === (string)$shape['number']))
                         @php($points = collect($shape['points'])->map(fn($point) => implode(',', $point))->implode(' '))
-                        <polygon points="{{ $points }}" fill="#edf3e8" stroke="#245440" stroke-width="2" />
+                        <g @if($mappedLot) role="button" tabindex="0" data-shape-key="{{ $shape['block'] }}:{{ $shape['number'] }}" aria-label="Manzana {{ $shape['block'] }}, lote {{ $shape['number'] }}, {{ $mappedLot->availability_status->value }}" @endif>
+                        <polygon points="{{ $points }}" fill="{{ !$mappedLot ? '#eeeeee' : ($mappedLot->availability_status->value === 'disponible' ? '#d9ecda' : ($mappedLot->availability_status->value === 'apartado' ? '#f4e6c6' : '#dddddd')) }}" stroke="#245440" stroke-width="2" />
                         <text x="{{ collect($shape['points'])->avg(fn($p) => $p[0]) }}" y="{{ collect($shape['points'])->avg(fn($p) => $p[1]) }}" text-anchor="middle" dominant-baseline="middle" font-size="14" fill="#173e35">M{{ $shape['block'] }} · {{ $shape['number'] }}</text>
+                        </g>
                     @endforeach
                 </svg>
                 <div hidden class="lot-map-board" style="--map-columns: {{ count($columns) }}">

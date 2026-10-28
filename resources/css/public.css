@@ -257,3 +257,5 @@ button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.
 @media(max-width:1199.98px){.lot-map-info{position:static}}
 @media(max-width:575.98px){.lot-map-section{margin-inline:-.75rem}.lot-map-board{min-width:590px}.lot-map-viewport{max-height:520px}}
 @media(prefers-reduced-motion:reduce){.lot-map-plot{transition:none}button.lot-map-plot:hover,button.lot-map-plot:focus-visible,button.lot-map-plot.is-selected{transform:none}}
+
+[data-shape-key]{cursor:pointer}[data-shape-key]:focus polygon,[data-shape-key]:hover polygon{stroke:#b57926;stroke-width:4}

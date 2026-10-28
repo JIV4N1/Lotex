@@ -38,6 +38,16 @@ document.querySelectorAll('[data-lot-map]').forEach((map) => {
         plot.addEventListener('click', () => choose(plot, false, true));
         plot.addEventListener('focus', () => choose(plot));
     });
+    map.querySelectorAll('[data-shape-key]').forEach((shape) => {
+        const activate = () => {
+            const plot = plots.find(item => item.dataset.mapLot === shape.dataset.shapeKey);
+            if (plot) choose(plot, false, true);
+        };
+        shape.addEventListener('click', activate);
+        shape.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(); }
+        });
+    });
     picker.addEventListener('change', () => {
         const plot = plots.find((item) => item.dataset.mapLot === picker.value);
         if (plot) choose(plot, true);
