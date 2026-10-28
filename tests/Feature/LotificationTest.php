@@ -34,6 +34,22 @@ class LotificationTest extends PostgresTestCase
             ->set('activeTab','block-2')->assertCanSeeTableRecords([$two])->assertCanNotSeeTableRecords([$one]);
     }
 
+    public function test_inline_availability_updates_only_selected_lot_without_changing_publication(): void
+    {
+        $group = $this->group();
+        $lot = $this->lot($group);
+        $other = $this->lot($group, ['lot_number'=>'2']);
+        $this->actingAs(User::factory()->create(['is_admin'=>true]));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        $page = Livewire::test(\App\Filament\Resources\PropertyResource\Pages\ListLots::class, ['parent'=>$group->id]);
+        foreach (['apartado','vendido','disponible'] as $status) {
+            $page->call('updateTableColumnState', 'availability_status', (string)$lot->id, $status)->assertHasNoErrors();
+            $this->assertSame($status, $lot->fresh()->availability_status->value);
+        }
+        $this->assertSame('publicado', $lot->fresh()->publication_status->value);
+        $this->assertSame('disponible', $other->fresh()->availability_status->value);
+    }
+
     private function group(): Property
     {
         return $this->makeProperty(['is_lotification' => true, 'title' => 'Santa Martha II', 'slug' => 'santa-martha', 'services' => ['Acceso común'], 'payment_terms' => 'Condiciones comunes']);

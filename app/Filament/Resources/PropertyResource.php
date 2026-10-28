@@ -127,7 +127,17 @@ class PropertyResource extends Resource
             TextColumn::make('price_mxn')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Precio')->placeholder('Por completar')->money('MXN')->sortable(),
             TextColumn::make('area_m2')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('m²')->placeholder('Por completar')->numeric(decimalPlaces: 2)->sortable(),
             TextColumn::make('publication_status')->label('Publicación')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
-            TextColumn::make('availability_status')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Disponibilidad')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
+            \Filament\Tables\Columns\SelectColumn::make('availability_status')
+                ->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')
+                ->label('Disponibilidad')->options(['disponible'=>'Disponible','apartado'=>'Apartado','vendido'=>'Vendido'])
+                ->selectablePlaceholder(false)->rules(['required','in:disponible,apartado,vendido'])
+                ->disabled(fn(Property $record)=>$record->trashed() || ! static::canEdit($record))
+                ->updateStateUsing(function(Property $record, $state) {
+                    app(UpdatePropertyBatch::class)->update(Filament::auth()->user(), [$record->id], 'availability_status', $state);
+                    $record->refresh();
+                    \Filament\Notifications\Notification::make()->title('Disponibilidad actualizada')->success()->send();
+                    return $record->availability_status->value;
+                }),
         ])->defaultSort('created_at', 'desc')->paginationPageOptions([25, 50, 100])->toolbarActions([
             BulkAction::make('availability')->label('Cambiar disponibilidad')->requiresConfirmation()
                 ->modalDescription('Se aplicará a todos los registros seleccionados. No cambia su publicación en la web.')
