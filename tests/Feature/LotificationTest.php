@@ -75,6 +75,17 @@ class LotificationTest extends PostgresTestCase
         $this->get('/terrenos/'.$group->slug)->assertOk()->assertSee('data-shape-key="1:1"', false)->assertSee('Quiero visitar este lote')->assertDontSee('MOLD');
     }
 
+    public function test_santa_martha_does_not_show_rectangular_placeholder_without_verified_geometry(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('local');
+        $group = $this->makeProperty(['is_lotification'=>true, 'code'=>'SMII', 'slug'=>'santa-martha-ii']);
+        $this->lot($group);
+        $this->get('/terrenos/santa-martha-ii')->assertOk()
+            ->assertDontSee('data-plan-image', false)
+            ->assertSee('La distribución visual está en revisión')
+            ->assertSee('data-map-lot="1:1"', false);
+    }
+
     public function test_hidden_parent_hides_lots_and_visits_target_exact_lot(): void
     {
         $group = $this->group();

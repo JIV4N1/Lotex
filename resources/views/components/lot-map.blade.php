@@ -1,11 +1,8 @@
 @props(['columns', 'inventory', 'slug', 'propertyId'])
 @php($savedMap = 'lot-maps/'.$propertyId.'.json')
 @php($geometry = \Illuminate\Support\Facades\Storage::disk('local')->exists($savedMap) ? json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get($savedMap), true) : null)
-@php($geometry = is_array($geometry) && ($geometry['reviewed'] ?? false) === true ? $geometry : null)
-@if(!$geometry && $slug === 'santa-martha-ii')
-    @php($geometry = json_decode(file_get_contents(resource_path('data/santa-martha-ii-guide.json')), true))
-    @php($geometry['lots'] = collect($geometry['lots'])->map(function($shape) use ($inventory) { $lot = $inventory->first(fn($lot) => (string)$lot->block === (string)$shape['block'] && (string)$lot->lot_number === (string)$shape['number']); $shape['id'] = $lot?->id; return $shape; })->all())
-@endif
+@php($geometry = is_array($geometry) && ($geometry['reviewed'] ?? false) === true && !($geometry['schematic'] ?? false) ? $geometry : null)
+
 <section class="lot-map-section" aria-labelledby="lot-map-title" data-lot-map>
     <div class="lot-map-heading">
         <div><p class="eyebrow mb-2">Distribución de lotes</p><h2 id="lot-map-title">Ubica tu lote</h2>
