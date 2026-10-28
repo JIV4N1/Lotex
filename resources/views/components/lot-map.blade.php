@@ -2,6 +2,10 @@
 @php($savedMap = 'lot-maps/'.$propertyId.'.json')
 @php($geometry = \Illuminate\Support\Facades\Storage::disk('local')->exists($savedMap) ? json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get($savedMap), true) : null)
 @php($geometry = is_array($geometry) && ($geometry['reviewed'] ?? false) === true ? $geometry : null)
+@if(!$geometry && $slug === 'santa-martha-ii')
+    @php($geometry = json_decode(file_get_contents(resource_path('data/santa-martha-ii-guide.json')), true))
+    @php($geometry['lots'] = collect($geometry['lots'])->map(function($shape) use ($inventory) { $lot = $inventory->first(fn($lot) => (string)$lot->block === (string)$shape['block'] && (string)$lot->lot_number === (string)$shape['number']); $shape['id'] = $lot?->id; return $shape; })->all())
+@endif
 <section class="lot-map-section" aria-labelledby="lot-map-title" data-lot-map>
     <div class="lot-map-heading">
         <div><p class="eyebrow mb-2">Distribución de lotes</p><h2 id="lot-map-title">Ubica tu lote</h2>
@@ -17,7 +21,9 @@
 
             </div>
             <div class="lot-map-viewport" role="region" aria-label="Distribución de lotes; desplázate para recorrerla" tabindex="0">
+                @if($geometry['schematic'] ?? false)<p class="small muted">Guía de ubicación por manzana, sin escala. El tamaño de las figuras no representa las medidas del terreno; consulta la ficha del lote.</p>@endif
                 <svg data-plan-image viewBox="{{ $geometry['viewBox'] }}" style="width:100%;max-width:none;display:block" aria-label="Distribución de las divisiones y números de lote" role="group">
+                    @foreach($geometry['labels'] ?? [] as $label)<text x="{{ $label['x'] }}" y="{{ $label['y'] }}" text-anchor="middle" font-size="12" fill="#526357">{{ $label['text'] }}</text>@endforeach
                     @foreach($geometry['lots'] as $shape)
                         @php($mappedLot = $inventory->firstWhere('id', $shape['id'] ?? null))
                         @php($points = collect($shape['points'])->map(fn($point) => implode(',', $point))->implode(' '))
