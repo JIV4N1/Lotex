@@ -1,6 +1,7 @@
-@props(['columns', 'inventory', 'slug'])
+@props(['columns', 'inventory', 'slug', 'propertyId'])
 @php($plan = str_starts_with($slug, 'villa-de-oshun') ? 'villa-de-oshun' : 'santa-martha-ii')
-@php($geometry = json_decode(file_get_contents(resource_path('data/'.$plan.'.json')), true))
+@php($savedMap = 'lot-maps/'.$propertyId.'.json')
+@php($geometry = \Illuminate\Support\Facades\Storage::disk('local')->exists($savedMap) ? json_decode(\Illuminate\Support\Facades\Storage::disk('local')->get($savedMap), true) : json_decode(file_get_contents(resource_path('data/'.$plan.'.json')), true))
 <section class="lot-map-section" aria-labelledby="lot-map-title" data-lot-map>
     <div class="lot-map-heading">
         <div><p class="eyebrow mb-2">Distribución de lotes</p><h2 id="lot-map-title">Ubica tu lote</h2>

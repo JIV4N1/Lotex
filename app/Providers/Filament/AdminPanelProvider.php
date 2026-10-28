@@ -38,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups(['Gestión comercial', 'Ubicaciones', 'Administración'])
             ->renderHook('panels::head.end', fn () => view('filament.admin-styles'))
             ->renderHook('panels::page.start', fn () => view('filament.back-navigation'))
-            ->pages([Dashboard::class])->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->pages([Dashboard::class, \App\Filament\Pages\LotMapEditor::class])->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -32,6 +32,10 @@ class LotMapLayout
             default => null,
         };
 
+        if ($columns === null && \Illuminate\Support\Facades\Storage::disk('local')->exists('lot-maps/'.$lotification->id.'.json')) {
+            $columns = [];
+        }
+
         if ($columns === null) {
             return null;
         }

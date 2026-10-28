@@ -56,6 +56,7 @@ class PublicSiteController extends Controller
             $parent = Property::publiclyVisible()->where('slug', $slug)->firstOrFail();
             $inventory = $parent->lots()->publiclyVisible()->get()->sort(fn ($a, $b) => strnatcmp($a->block, $b->block) ?: strnatcmp($a->lot_number, $b->lot_number));
             $lotMap = $lotMapLayout->for($parent, $inventory);
+            $mapPropertyId = $parent->id;
 
             $query = $parent->lots()->publiclyVisible();
             if (! empty($filters['block'])) {
@@ -71,7 +72,7 @@ class PublicSiteController extends Controller
                 $query->where('area_m2', '>=', $filters['min_area']);
             }
 
-            return view('properties.lotification', compact('property', 'filters', 'inventory', 'lotMap') + ['lots' => $query->orderByRaw("CASE WHEN block ~ '^[0-9]+$' THEN block::numeric END NULLS LAST")->orderBy('block')->orderByRaw("CASE WHEN lot_number ~ '^[0-9]+$' THEN lot_number::numeric END NULLS LAST")->orderBy('lot_number')->paginate(24)->withQueryString(), 'blocks' => $parent->lots()->publiclyVisible()->distinct()->orderBy('block')->pluck('block')]);
+            return view('properties.lotification', compact('property', 'filters', 'inventory', 'lotMap', 'mapPropertyId') + ['lots' => $query->orderByRaw("CASE WHEN block ~ '^[0-9]+$' THEN block::numeric END NULLS LAST")->orderBy('block')->orderByRaw("CASE WHEN lot_number ~ '^[0-9]+$' THEN lot_number::numeric END NULLS LAST")->orderBy('lot_number')->paginate(24)->withQueryString(), 'blocks' => $parent->lots()->publiclyVisible()->distinct()->orderBy('block')->pluck('block')]);
         }
 
         return view('properties.show', compact('property') + ['related' => $catalog->related($property)]);
