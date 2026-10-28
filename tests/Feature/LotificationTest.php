@@ -18,6 +18,22 @@ class LotificationTest extends PostgresTestCase
 {
     use BuildsPropertyFixtures;
 
+    public function test_admin_listing_groups_lots_and_scopes_manzana_tabs(): void
+    {
+        $group = $this->group();
+        $one = $this->lot($group);
+        $two = $this->lot($group, ['block'=>'2']);
+        $independent = $this->makeProperty(['code'=>'INDEPENDENT','slug'=>'independent']);
+        $this->actingAs(User::factory()->create(['is_admin'=>true]));
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        Livewire::test(\App\Filament\Resources\PropertyResource\Pages\ListProperties::class)
+            ->assertCanSeeTableRecords([$group])->assertCanNotSeeTableRecords([$one,$two,$independent])
+            ->set('activeTab','independent')->assertCanSeeTableRecords([$independent])->assertCanNotSeeTableRecords([$group,$one]);
+        Livewire::test(\App\Filament\Resources\PropertyResource\Pages\ListLots::class, ['parent'=>$group->id])
+            ->assertCanSeeTableRecords([$one,$two])->assertCanNotSeeTableRecords([$group,$independent])
+            ->set('activeTab','block-2')->assertCanSeeTableRecords([$two])->assertCanNotSeeTableRecords([$one]);
+    }
+
     private function group(): Property
     {
         return $this->makeProperty(['is_lotification' => true, 'title' => 'Santa Martha II', 'slug' => 'santa-martha', 'services' => ['Acceso común'], 'payment_terms' => 'Condiciones comunes']);

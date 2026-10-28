@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-<div class="lt-editor" x-data="{
+<div class="lt-editor" x-init="const initial = new URLSearchParams(window.location.search).get('lotification'); if(initial){group=initial;load();}" x-data="{
  previousShapes:null, missingLots:[], generated:false, reviewed:false, guideName:'', proposal:[], cropX:0, cropY:0, cropWidth:0, cropHeight:0, group:'', lots:[], shapes:[], draft:[], selected:'', image:null, width:1200, height:800, zoom:1, preview:false, message:'', busy:false,
  bounds(){if(!this.preview||!this.shapes.length)return [0,0,this.width,this.height];const points=this.shapes.flatMap(s=>s.points);const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);const x=Math.min(...xs)-25,y=Math.min(...ys)-25;return [x,y,Math.max(...xs)-x+25,Math.max(...ys)-y+25];},
  fit(){this.$nextTick(()=>{this.zoom=Math.min(2,Math.max(.05,(this.$refs.viewport.clientWidth-40)/this.bounds()[2]));});},

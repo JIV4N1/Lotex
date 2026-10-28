@@ -115,16 +115,19 @@ class PropertyResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->deferFilters(false)->columns([
-            TextColumn::make('code')->label('Clave')->searchable(),
-            TextColumn::make('lotification.title')->label('Lotificación')->placeholder('Independiente / principal'),
-            TextColumn::make('block')->label('Manzana'),
-            TextColumn::make('lot_number')->label('Lote'),
-            TextColumn::make('title')->label('Terreno')->searchable()->sortable(),
-            TextColumn::make('zone.name')->label('Zona')->placeholder('Por completar')->searchable(),
-            TextColumn::make('price_mxn')->label('Precio')->placeholder('Por completar')->money('MXN')->sortable(),
-            TextColumn::make('area_m2')->label('m²')->placeholder('Por completar')->numeric(decimalPlaces: 2)->sortable(),
+            TextColumn::make('code')->label('Clave')->searchable()->toggleable(isToggledHiddenByDefault: true),
+
+            TextColumn::make('block')->label('Manzana')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots),
+            TextColumn::make('lot_number')->label('Lote')->searchable()->visible(fn($livewire)=>$livewire instanceof Pages\ListLots),
+            TextColumn::make('title')->label('Nombre')->searchable()->sortable()->visible(fn($livewire)=>!($livewire instanceof Pages\ListLots)),
+            TextColumn::make('available_count')->label('Disponibles')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
+            TextColumn::make('reserved_count')->label('Apartados')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
+            TextColumn::make('sold_count')->label('Vendidos')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
+            TextColumn::make('zone.name')->label('Zona')->visible(fn($livewire)=>!($livewire instanceof Pages\ListLots))->placeholder('Por completar')->searchable(),
+            TextColumn::make('price_mxn')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Precio')->placeholder('Por completar')->money('MXN')->sortable(),
+            TextColumn::make('area_m2')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('m²')->placeholder('Por completar')->numeric(decimalPlaces: 2)->sortable(),
             TextColumn::make('publication_status')->label('Publicación')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
-            TextColumn::make('availability_status')->label('Disponibilidad')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
+            TextColumn::make('availability_status')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Disponibilidad')->formatStateUsing(fn ($state) => ucfirst($state->value))->badge(),
         ])->defaultSort('created_at', 'desc')->paginationPageOptions([25, 50, 100])->toolbarActions([
             BulkAction::make('availability')->label('Cambiar disponibilidad')->requiresConfirmation()
                 ->modalDescription('Se aplicará a todos los registros seleccionados. No cambia su publicación en la web.')
@@ -135,15 +138,15 @@ class PropertyResource extends Resource
                 ->schema([Select::make('value')->label('Publicación')->options(['borrador' => 'Borrador', 'publicado' => 'Publicado'])->required()])
                 ->action(fn (Collection $records, array $data) => app(UpdatePropertyBatch::class)->update(Filament::auth()->user(), $records->modelKeys(), 'publication_status', $data['value']))->deselectRecordsAfterCompletion(),
         ])->filters([
-            SelectFilter::make('block')->label('Manzana')->options(fn () => Property::whereNotNull('block')->distinct()->orderBy('block')->pluck('block', 'block')),
-            SelectFilter::make('lotification_id')->label('Lotificación')->options(fn () => Property::where('is_lotification', true)->orderBy('title')->pluck('title', 'id')),
+            SelectFilter::make('block')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots)->label('Manzana')->options(fn () => Property::whereNotNull('block')->distinct()->orderBy('block')->pluck('block', 'block')),
+
             SelectFilter::make('publication_status')->label('Publicación')->options(['borrador' => 'Borrador', 'publicado' => 'Publicado']),
             SelectFilter::make('availability_status')->label('Disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido']),
             TrashedFilter::make(),
         ])->recordActions([
             Action::make('public')->label('Ver ficha')->url(fn (Property $record) => route('properties.show', $record->slug))->openUrlInNewTab()->visible(fn (Property $record) => ! $record->trashed() && $record->publication_status->value === 'publicado'),
             Action::make('addLot')->label('Añadir lote')->url(fn (Property $record) => static::getUrl('create', ['lotification_id' => $record->id]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
-            Action::make('viewLots')->label('Administrar lotes')->url(fn (Property $record) => static::getUrl('index', ['filters' => ['lotification_id' => ['value' => $record->id]]]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
+            Action::make('viewLots')->label('Administrar lotes')->url(fn (Property $record) => static::getUrl('lots', ['parent' => $record->id]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
             EditAction::make(), DeleteAction::make(), RestoreAction::make(),
         ]);
     }
@@ -155,6 +158,6 @@ class PropertyResource extends Resource
 
     public static function getPages(): array
     {
-        return ['index' => Pages\ListProperties::route('/'), 'create' => Pages\CreateProperty::route('/create'), 'edit' => Pages\EditProperty::route('/{record}/edit')];
+        return ['index' => Pages\ListProperties::route('/'), 'create' => Pages\CreateProperty::route('/create'), 'lots'=>Pages\ListLots::route('/{parent}/lots'), 'edit' => Pages\EditProperty::route('/{record}/edit')];
     }
 }
