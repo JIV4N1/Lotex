@@ -384,3 +384,13 @@ Cada solicitud de visita apunta al registro del lote seleccionado. No se aceptan
 Aplica `php artisan migrate --database=pgsql --path=database/migrations/2026_10_22_000001_add_lotifications.php`; en pruebas usa `--database=pgsql_testing`. La migración es aditiva, conserva terrenos existentes y no admite una reversión automática que pierda la agrupación. Pruebas: `php artisan test --filter=LotificationTest`.
 
 No se importaron ni publicaron los lotes del PDF Santa Martha II. La captura masiva y el plano interactivo quedan fuera de esta implementación; se puede adjuntar un plano PDF revisado usando Documentos y planos.
+
+### Catálogo informativo de lotificaciones
+
+En Terrenos → Lotificaciones → Editar se administran precio desde, superficies desde/hasta, enganche, mensualidad, condiciones y estado general. Publicar requiere zona y descripción. Los estados Temporalmente sin disponibilidad y Finalizada mantienen la ficha visible y cierran las solicitudes.
+
+En la galería, marca la imagen destinada al visitante como Usar como plano de referencia público. El cliente puede ampliar el plano y solicitar una visita general con nombre y WhatsApp. La solicitud llega a la bandeja existente vinculada a la lotificación.
+
+Antes de servir esta versión, ejecuta php artisan migrate --force en producción y npm run build durante la construcción. La migración 2026_11_17_000001_informational_lotifications copia una vez el precio mínimo y rango de superficies de los lotes activos existentes, incluidos borradores. Revisa esos valores comerciales en cada ficha. Enganche y mensualidad se capturan manualmente. Las condiciones de pago existentes se conservan.
+
+El inventario individual queda disponible para consulta interna. Sus cambios posteriores no recalculan los importes generales. Los enlaces antiguos a lotes publicados redirigen a su lotificación. Las solicitudes anteriores conservan su referencia original.

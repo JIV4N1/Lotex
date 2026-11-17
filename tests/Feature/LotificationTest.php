@@ -81,19 +81,19 @@ class LotificationTest extends PostgresTestCase
         $two = $this->lot($group, ['lot_number' => '2', 'price_mxn' => 385000, 'area_m2' => 128.22, 'payment_terms' => 'Pago especial']);
         $catalog = app(PropertyCatalog::class);
         $this->assertCount(1, $catalog->filtered([]));
-        $this->assertEquals(350000, $catalog->filtered([])->first()['price']);
+        $this->assertEquals(780000, $catalog->filtered([])->first()['price']);
         $this->assertCount(0, $catalog->filtered(['max_price' => 360000, 'min_area' => 125]));
         $this->assertNull($one->zone_id);
         $this->assertSame(['Acceso común'], $catalog->find($one->slug)['services']);
         $this->assertSame('Pago especial', $catalog->find($two->slug)['payment_terms']);
-        $this->get('/terrenos/santa-martha')->assertOk()->assertSee('Elige tu lote')->assertSee('Manzana 1 · Lote 2');
-        $this->get('/terrenos/santa-martha?max_price=360000')->assertOk()->assertDontSee('Manzana 1 · Lote 2')->assertSee('Manzana 1 · Lote 1');
-        $this->get('/terrenos/'.$one->slug)->assertOk()->assertSee('Ver todos los lotes');
+        $this->get('/terrenos/santa-martha')->assertOk()->assertSee('Quiero conocer esta lotificación')->assertDontSee('Elige tu lote');
+        $this->get('/terrenos/santa-martha?max_price=360000')->assertOk()->assertDontSee('Manzana 1 · Lote 2');
+        $this->get('/terrenos/'.$one->slug)->assertRedirect(route('properties.show', $group->slug));
         $one->update(['availability_status' => 'vendido']);
-        $this->assertEquals(385000, $catalog->filtered([])->first()['price']);
+        $this->assertEquals(780000, $catalog->filtered([])->first()['price']);
     }
 
-    public function test_public_map_requires_review_and_uses_current_lot_id(): void
+    public function test_general_page_ignores_saved_individual_map(): void
     {
         \Illuminate\Support\Facades\Storage::fake('local');
         $group = $this->group();
@@ -101,10 +101,10 @@ class LotificationTest extends PostgresTestCase
         $map = ['viewBox'=>'0 0 100 100','lots'=>[['id'=>$lot->id,'block'=>'OLD','number'=>'999','points'=>[[0,0],[100,0],[100,100],[0,100]]]]];
         $path = 'lot-maps/'.$group->id.'.json';
         \Illuminate\Support\Facades\Storage::disk('local')->put($path, json_encode($map));
-        $this->get('/terrenos/'.$group->slug)->assertOk()->assertDontSee('data-plan-image', false)->assertSee('La distribución visual está en revisión');
+        $this->get('/terrenos/'.$group->slug)->assertOk()->assertDontSee('data-plan-image', false)->assertSee('Plano general');
         $map['reviewed'] = true;
         \Illuminate\Support\Facades\Storage::disk('local')->put($path, json_encode($map));
-        $this->get('/terrenos/'.$group->slug)->assertOk()->assertSee('data-shape-key="1:1"', false)->assertSee('Quiero visitar este lote')->assertDontSee('MOLD');
+        $this->get('/terrenos/'.$group->slug)->assertOk()->assertDontSee('data-shape-key=', false)->assertSee('Quiero conocer esta lotificación')->assertDontSee('MOLD');
     }
 
     public function test_santa_martha_does_not_show_rectangular_placeholder_without_verified_geometry(): void
@@ -114,18 +114,18 @@ class LotificationTest extends PostgresTestCase
         $this->lot($group);
         $this->get('/terrenos/santa-martha-ii')->assertOk()
             ->assertDontSee('data-plan-image', false)
-            ->assertSee('La distribución visual está en revisión')
-            ->assertSee('data-map-lot="1:1"', false);
+            ->assertSee('Plano general')
+            ->assertDontSee('data-map-lot=', false);
     }
 
-    public function test_hidden_parent_hides_lots_and_visits_target_exact_lot(): void
+    public function test_hidden_parent_hides_lots_and_visits_target_lotification(): void
     {
         $group = $this->group();
         $lot = $this->lot($group);
         $payload = ['name' => 'Cliente prueba', 'phone' => '2381234567', 'submission_token' => (string) Str::uuid()];
         $this->post(route('visits.store', $lot->slug), $payload)->assertRedirect();
-        $this->assertSame($lot->id, VisitRequest::sole()->property_id);
-        $this->post(route('visits.store', $group->slug), $payload)->assertStatus(422);
+        $this->assertSame($group->id, VisitRequest::sole()->property_id);
+        $this->post(route('visits.store', $group->slug), $payload)->assertRedirect();
         $group->update(['publication_status' => 'borrador']);
         $this->get(route('properties.show', $lot->slug))->assertNotFound();
         $this->post(route('visits.store', $lot->slug), $payload)->assertNotFound();
@@ -135,20 +135,16 @@ class LotificationTest extends PostgresTestCase
         $this->get(route('properties.show', $lot->slug))->assertNotFound();
     }
 
-    public function test_santa_martha_croquis_links_only_published_lots_with_current_availability(): void
+    public function test_general_page_does_not_render_individual_lot_buttons(): void
     {
         $group = $this->makeProperty(['is_lotification' => true, 'code' => 'SMII', 'slug' => 'santa-martha']);
         $available = $this->lot($group, ['lot_number' => '1']);
         $reserved = $this->lot($group, ['lot_number' => '2', 'availability_status' => 'apartado']);
 
         $this->get('/terrenos/santa-martha')->assertOk()
-            ->assertSee('Ubica tu lote')
-            ->assertSee('data-map-lot="1:1"', false)
-            ->assertSee('data-map-lot="1:2"', false)
-            ->assertSee('is-apartado', false)
-            ->assertSee(route('properties.show', $available->slug))
-            ->assertSee(route('properties.show', $reserved->slug))
-            ->assertDontSee('data-map-lot="1:3"', false);
+            ->assertSee('Plano general')
+            ->assertDontSee('data-map-lot=', false);
+
     }
 
     public function test_admin_can_create_group_and_lot_without_duplicate_common_data(): void
@@ -164,16 +160,15 @@ class LotificationTest extends PostgresTestCase
         Livewire::test(CreateProperty::class)->fillForm(['lotification_id' => $group->id, 'block' => 'A', 'lot_number' => '1', 'price_mxn' => 350000, 'area_m2' => 120, 'publication_status' => 'publicado'])->call('create')->assertHasFormErrors(['lot_number']);
     }
 
-    public function test_large_inventory_is_paginated_in_numeric_order_and_chat_uses_group_context(): void
+    public function test_large_inventory_is_absent_from_public_page_and_chat_uses_general_data(): void
     {
         $group = $this->group();
         for ($i = 1; $i <= 52; $i++) {
             $this->lot($group, ['lot_number' => (string) $i]);
         }
-        $this->get('/terrenos/santa-martha')->assertOk()->assertViewHas('lots', fn ($lots) => $lots->total() === 52 && $lots->count() === 24 && $lots->first()->lot_number === '1' && $lots->last()->lot_number === '24');
-        $this->get('/terrenos/santa-martha?page=3')->assertOk()->assertViewHas('lots', fn ($lots) => $lots->count() === 4 && $lots->first()->lot_number === '49');
+        $this->get('/terrenos/santa-martha')->assertOk()->assertViewMissing('lots')->assertSee('Quiero conocer esta lotificación');
         $answer = app(ChatCatalog::class)->answer(['intent' => 'details', 'topics' => ['area']], $group->slug);
-        $this->assertStringContainsString('Selecciona uno', $answer['message']);
+        $this->assertStringContainsString('Superficies desde', $answer['message']);
         $this->assertSame([], $answer['properties']);
     }
 }

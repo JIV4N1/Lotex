@@ -40,10 +40,6 @@ class Property extends Model
                 $property->block = null;
                 $property->lot_number = null;
             }
-            if ($property->is_lotification) {
-                $property->price_mxn = null;
-                $property->area_m2 = null;
-            }
             if (blank($property->code)) {
                 $property->code = 'HZ-'.Str::ulid();
             }
@@ -54,13 +50,14 @@ class Property extends Model
     }
 
     protected $fillable = [
-        'is_lotification', 'lotification_id', 'block', 'lot_number', 'zone_id', 'code', 'slug', 'title', 'description', 'price_mxn', 'area_m2',
+        'development_status', 'area_max_m2', 'down_payment_mxn', 'monthly_payment_mxn', 'is_lotification', 'lotification_id', 'block', 'lot_number', 'zone_id', 'code', 'slug', 'title', 'description', 'price_mxn', 'area_m2',
         'frontage_m', 'depth_m', 'reference_address', 'latitude', 'longitude',
         'services', 'access', 'topography', 'land_use', 'documentary_summary',
         'payment_terms', 'publication_status', 'availability_status', 'is_featured',
     ];
 
     protected $attributes = [
+        'development_status' => 'consultas',
         'is_lotification' => false,
         'publication_status' => 'borrador',
         'availability_status' => 'disponible',
@@ -74,6 +71,9 @@ class Property extends Model
             'is_lotification' => 'boolean',
             'price_mxn' => 'decimal:2',
             'area_m2' => 'decimal:2',
+            'area_max_m2' => 'decimal:2',
+            'down_payment_mxn' => 'decimal:2',
+            'monthly_payment_mxn' => 'decimal:2',
             'frontage_m' => 'decimal:2',
             'depth_m' => 'decimal:2',
             'latitude' => 'decimal:7',
@@ -83,6 +83,15 @@ class Property extends Model
             'availability_status' => AvailabilityStatus::class,
             'is_featured' => 'boolean',
         ];
+    }
+
+    public function developmentStatusLabel(): string
+    {
+        return match ($this->development_status) {
+            'pausada' => 'Temporalmente sin disponibilidad',
+            'finalizada' => 'Finalizada',
+            default => 'Recibiendo consultas',
+        };
     }
 
     public function lotification(): BelongsTo
@@ -150,7 +159,7 @@ class Property extends Model
     protected function pricePerM2(): Attribute
     {
         return Attribute::get(function (): ?string {
-            if ($this->price_mxn === null || $this->area_m2 === null || BigDecimal::of($this->area_m2)->isLessThanOrEqualTo(0)) {
+            if ($this->is_lotification || $this->price_mxn === null || $this->area_m2 === null || BigDecimal::of($this->area_m2)->isLessThanOrEqualTo(0)) {
                 return null;
             }
 

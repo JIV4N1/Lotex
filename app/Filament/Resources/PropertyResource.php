@@ -54,23 +54,27 @@ class PropertyResource extends Resource
     {
         return $schema->components([
             Section::make('Organización de la publicación')->schema([
-                Toggle::make('is_lotification')->label('Es una lotificación (agrupa varios lotes)')->default(false)->live()->disabled(fn ($record) => $record?->lots()->withTrashed()->exists() ?? false),
-                Select::make('lotification_id')->label('Pertenece a una lotificación')->default(fn () => request()->integer('lotification_id') ?: null)->options(fn () => Property::where('is_lotification', true)->orderBy('title')->pluck('title', 'id'))->searchable()->preload()->live()->visible(fn (Get $get) => ! $get('is_lotification'))->helperText('Vacío = terreno independiente. El lote hereda ubicación, fotografías y datos comunes; puedes especificar excepciones.'),
+                Toggle::make('is_lotification')->label('Es una lotificación (catálogo informativo)')->default(false)->live()->disabled(fn ($record) => $record?->lots()->withTrashed()->exists() ?? false),
+                Select::make('lotification_id')->label('Pertenece a una lotificación')->default(fn () => request()->integer('lotification_id') ?: null)->options(fn () => Property::where('is_lotification', true)->orderBy('title')->pluck('title', 'id'))->searchable()->preload()->live()->helperText('Vacío = terreno independiente. El lote hereda ubicación, fotografías y datos comunes; puedes especificar excepciones.'),
                 TextInput::make('block')->label('Manzana')->maxLength(40)->required(fn (Get $get) => (bool) $get('lotification_id'))->visible(fn (Get $get) => (bool) $get('lotification_id')),
                 TextInput::make('lot_number')->label('Número de lote')->maxLength(40)->required(fn (Get $get) => (bool) $get('lotification_id'))->visible(fn (Get $get) => (bool) $get('lotification_id'))->rules(fn (Get $get, $record) => [Rule::unique('properties', 'lot_number')->where('lotification_id', $get('lotification_id'))->where('block', $get('block'))->ignore($record?->id)]),
             ]),
             Section::make('Datos básicos')->description('Para empezar basta con un título. Guarda como borrador y completa la información cuando la tengas.')->columns(2)->schema([
                 TextInput::make('title')->label('Nombre del terreno')->placeholder('Ej. Terreno campestre en Tehuacán')->required(fn (Get $get) => ! $get('lotification_id'))->visible(fn (Get $get) => ! $get('lotification_id'))->maxLength(255)->columnSpanFull(),
                 Select::make('publication_status')->label('Publicación en la web')->options(['borrador' => 'Borrador · solo administradores', 'publicado' => 'Publicado'])->default('borrador')->required()->live()->helperText(fn (Get $get, $record) => $get('is_lotification')
-                    ? 'La lotificación necesita zona, descripción y al menos un lote publicado y disponible para aparecer en el catálogo. Publicar esta ficha no publica automáticamente sus lotes. Lotes publicados y disponibles: '.($record?->lots()->where('publication_status', 'publicado')->where('availability_status', 'disponible')->count() ?? 0).'. Usa «Administrar lotes» en el listado de terrenos.'
-                    : ($get('lotification_id') ? 'Para aparecer, publica este lote y su lotificación. El lote debe tener precio y superficie; solo los disponibles hacen aparecer la lotificación en el catálogo.' : 'Para publicar completa zona, descripción, precio y superficie. Guarda los cambios para que se apliquen.')),
-                Select::make('availability_status')->label('Disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido'])->default('disponible')->required()->helperText('Indica la situación comercial. Seleccionar Disponible no publica el terreno: cambia también Publicación en la web y guarda.'),
+                    ? 'Publica con zona y descripción. Precio desde y superficies se administran en esta ficha.'
+                    : ($get('lotification_id') ? 'Inventario interno. La ficha pública se administra desde la lotificación.' : 'Para publicar completa zona, descripción, precio y superficie. Guarda los cambios para que se apliquen.')),
+                Select::make('availability_status')->visible(fn (Get $get) => ! $get('is_lotification'))->label('Disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido'])->default('disponible')->required()->helperText('Indica la situación comercial. Seleccionar Disponible no publica el terreno: cambia también Publicación en la web y guarda.'),
                 Select::make('zone_id')->label('Zona / Municipio / Estado')
                     ->relationship('zone', 'name', modifyQueryUsing: fn (Builder $query) => $query->with('municipality.state'))
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->name.' / '.$record->municipality->name.' / '.$record->municipality->state->name)
                     ->searchable()->preload()->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('lotification_id'))->visible(fn (Get $get) => ! $get('lotification_id'))->helperText('Selecciona una ubicación existente. Si falta, créala en Estados, Municipios y Zonas; puedes guardar el borrador primero.')->columnSpanFull(),
-                TextInput::make('price_mxn')->label('Precio total (MXN)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0)->maxValue(99999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification'))->visible(fn (Get $get) => ! $get('is_lotification')),
-                TextInput::make('area_m2')->label('Superficie (m²)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0.01)->maxValue(999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification'))->visible(fn (Get $get) => ! $get('is_lotification')),
+                TextInput::make('price_mxn')->label(fn (Get $get) => $get('is_lotification') ? 'Precio desde (MXN)' : 'Precio total (MXN)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0)->maxValue(99999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification')),
+                TextInput::make('area_m2')->label(fn (Get $get) => $get('is_lotification') ? 'Superficie desde (m²)' : 'Superficie (m²)')->placeholder('Pendiente de confirmar')->numeric()->minValue(0.01)->maxValue(999999999999.99)->step('0.01')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('is_lotification')),
+                Select::make('development_status')->label('Estado general')->options(['consultas'=>'Recibiendo consultas', 'pausada'=>'Temporalmente sin disponibilidad', 'finalizada'=>'Finalizada'])->default('consultas')->required()->visible(fn (Get $get) => $get('is_lotification')),
+                TextInput::make('area_max_m2')->label('Superficie hasta (m²)')->numeric()->minValue(0.01)->gte('area_m2')->visible(fn (Get $get) => $get('is_lotification')),
+                TextInput::make('down_payment_mxn')->label('Enganche desde (MXN)')->numeric()->minValue(0)->visible(fn (Get $get) => $get('is_lotification')),
+                TextInput::make('monthly_payment_mxn')->label('Mensualidad desde (MXN)')->numeric()->minValue(0)->visible(fn (Get $get) => $get('is_lotification')),
                 Textarea::make('description')->label('Descripción para el visitante')->placeholder('Describe el entorno y lo que conoces del terreno. No es necesario prometer servicios ni usos que no estén confirmados.')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('lotification_id'))->rows(4)->maxLength(20000)->columnSpanFull(),
             ]),
             Section::make('Cómo llegar y medidas adicionales')->description('Opcional. Puedes dejar estos campos vacíos si aún no tienes la información.')->collapsed()->columns(2)->schema([
@@ -120,9 +124,7 @@ class PropertyResource extends Resource
             TextColumn::make('block')->label('Manzana')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots),
             TextColumn::make('lot_number')->label('Lote')->searchable()->visible(fn($livewire)=>$livewire instanceof Pages\ListLots),
             TextColumn::make('title')->label('Nombre')->searchable()->sortable()->visible(fn($livewire)=>!($livewire instanceof Pages\ListLots)),
-            TextColumn::make('available_count')->label('Disponibles')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
-            TextColumn::make('reserved_count')->label('Apartados')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
-            TextColumn::make('sold_count')->label('Vendidos')->visible(fn($livewire)=>$livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
+            TextColumn::make('development_status')->label('Estado general')->formatStateUsing(fn (Property $record) => $record->developmentStatusLabel())->visible(fn ($livewire) => $livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
             TextColumn::make('zone.name')->label('Zona')->visible(fn($livewire)=>!($livewire instanceof Pages\ListLots))->placeholder('Por completar')->searchable(),
             TextColumn::make('price_mxn')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Precio')->placeholder('Por completar')->money('MXN')->sortable(),
             TextColumn::make('area_m2')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('m²')->placeholder('Por completar')->numeric(decimalPlaces: 2)->sortable(),
@@ -139,7 +141,7 @@ class PropertyResource extends Resource
                     return $record->availability_status->value;
                 }),
         ])->defaultSort('created_at', 'desc')->paginationPageOptions([25, 50, 100])->toolbarActions([
-            BulkAction::make('availability')->label('Cambiar disponibilidad')->requiresConfirmation()
+            BulkAction::make('availability')->visible(fn ($livewire) => $livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Cambiar disponibilidad')->requiresConfirmation()
                 ->modalDescription('Se aplicará a todos los registros seleccionados. No cambia su publicación en la web.')
                 ->schema([Select::make('value')->label('Nueva disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido'])->required()])
                 ->action(fn (Collection $records, array $data) => app(UpdatePropertyBatch::class)->update(Filament::auth()->user(), $records->modelKeys(), 'availability_status', $data['value']))->deselectRecordsAfterCompletion(),
@@ -151,12 +153,13 @@ class PropertyResource extends Resource
             SelectFilter::make('block')->visible(fn($livewire)=>$livewire instanceof Pages\ListLots)->label('Manzana')->options(fn () => Property::whereNotNull('block')->distinct()->orderBy('block')->pluck('block', 'block')),
 
             SelectFilter::make('publication_status')->label('Publicación')->options(['borrador' => 'Borrador', 'publicado' => 'Publicado']),
-            SelectFilter::make('availability_status')->label('Disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido']),
+            SelectFilter::make('development_status')->label('Estado general')->options(['consultas'=>'Recibiendo consultas','pausada'=>'Temporalmente sin disponibilidad','finalizada'=>'Finalizada'])->visible(fn ($livewire) => $livewire instanceof Pages\ListProperties && $livewire->activeTab !== 'independent'),
+            SelectFilter::make('availability_status')->visible(fn ($livewire) => $livewire instanceof Pages\ListLots || $livewire->activeTab === 'independent')->label('Disponibilidad')->options(['disponible' => 'Disponible', 'apartado' => 'Apartado', 'vendido' => 'Vendido']),
             TrashedFilter::make(),
         ])->recordActions([
             Action::make('public')->label('Ver ficha')->url(fn (Property $record) => route('properties.show', $record->slug))->openUrlInNewTab()->visible(fn (Property $record) => ! $record->trashed() && $record->publication_status->value === 'publicado'),
             Action::make('addLot')->label('Añadir lote')->url(fn (Property $record) => static::getUrl('create', ['lotification_id' => $record->id]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
-            Action::make('viewLots')->label('Administrar lotes')->url(fn (Property $record) => static::getUrl('lots', ['parent' => $record->id]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
+            Action::make('viewLots')->label('Inventario interno')->url(fn (Property $record) => static::getUrl('lots', ['parent' => $record->id]))->visible(fn (Property $record) => $record->is_lotification && ! $record->trashed()),
             EditAction::make(), DeleteAction::make(), RestoreAction::make(),
         ]);
     }

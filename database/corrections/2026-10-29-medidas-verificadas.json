@@ -1,0 +1,537 @@
+{
+  "sources": [
+    {
+      "file": "PRECIOS SANTA MARTA II CASETA_page-0001.jpg",
+      "sha256": "064562d2ead41d98882ef2ad463f44f3d7ecef626b477ef27d7245998ef4751a"
+    },
+    {
+      "file": "PRECIOS VILLA DE OSHUN PARC. 183_page-0001.jpg",
+      "sha256": "6be999e2decc60dfc68c8d3334c25a849a68293ac378e6be3a2bbe48f86c210c"
+    }
+  ],
+  "records": [
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L5",
+      "block": "2",
+      "lot_number": "5",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L6",
+      "block": "2",
+      "lot_number": "6",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L7",
+      "block": "2",
+      "lot_number": "7",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L8",
+      "block": "2",
+      "lot_number": "8",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L9",
+      "block": "2",
+      "lot_number": "9",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L10",
+      "block": "2",
+      "lot_number": "10",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L11",
+      "block": "2",
+      "lot_number": "11",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L12",
+      "block": "2",
+      "lot_number": "12",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L13",
+      "block": "2",
+      "lot_number": "13",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L14",
+      "block": "2",
+      "lot_number": "14",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L18",
+      "block": "2",
+      "lot_number": "18",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L19",
+      "block": "2",
+      "lot_number": "19",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L20",
+      "block": "2",
+      "lot_number": "20",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L21",
+      "block": "2",
+      "lot_number": "21",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L22",
+      "block": "2",
+      "lot_number": "22",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L23",
+      "block": "2",
+      "lot_number": "23",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L24",
+      "block": "2",
+      "lot_number": "24",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L25",
+      "block": "2",
+      "lot_number": "25",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L26",
+      "block": "2",
+      "lot_number": "26",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "SMII",
+      "code": "SMII-M2-L27",
+      "block": "2",
+      "lot_number": "27",
+      "area_m2": "120.00",
+      "frontage_m": "8.00",
+      "depth_m": "15.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L5",
+      "block": "1",
+      "lot_number": "5",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L6",
+      "block": "1",
+      "lot_number": "6",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L7",
+      "block": "1",
+      "lot_number": "7",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L8",
+      "block": "1",
+      "lot_number": "8",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L9",
+      "block": "1",
+      "lot_number": "9",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L10",
+      "block": "1",
+      "lot_number": "10",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L11",
+      "block": "1",
+      "lot_number": "11",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L12",
+      "block": "1",
+      "lot_number": "12",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L13",
+      "block": "1",
+      "lot_number": "13",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L14",
+      "block": "1",
+      "lot_number": "14",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L15",
+      "block": "1",
+      "lot_number": "15",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L16",
+      "block": "1",
+      "lot_number": "16",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L17",
+      "block": "1",
+      "lot_number": "17",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L18",
+      "block": "1",
+      "lot_number": "18",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L19",
+      "block": "1",
+      "lot_number": "19",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L20",
+      "block": "1",
+      "lot_number": "20",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L21",
+      "block": "1",
+      "lot_number": "21",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L22",
+      "block": "1",
+      "lot_number": "22",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L23",
+      "block": "1",
+      "lot_number": "23",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L29",
+      "block": "1",
+      "lot_number": "29",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L30",
+      "block": "1",
+      "lot_number": "30",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L31",
+      "block": "1",
+      "lot_number": "31",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L32",
+      "block": "1",
+      "lot_number": "32",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L33",
+      "block": "1",
+      "lot_number": "33",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L34",
+      "block": "1",
+      "lot_number": "34",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L35",
+      "block": "1",
+      "lot_number": "35",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L36",
+      "block": "1",
+      "lot_number": "36",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L37",
+      "block": "1",
+      "lot_number": "37",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L38",
+      "block": "1",
+      "lot_number": "38",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L39",
+      "block": "1",
+      "lot_number": "39",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L40",
+      "block": "1",
+      "lot_number": "40",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L41",
+      "block": "1",
+      "lot_number": "41",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L42",
+      "block": "1",
+      "lot_number": "42",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L43",
+      "block": "1",
+      "lot_number": "43",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L44",
+      "block": "1",
+      "lot_number": "44",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L45",
+      "block": "1",
+      "lot_number": "45",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L46",
+      "block": "1",
+      "lot_number": "46",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    },
+    {
+      "parent_code": "VDO183",
+      "code": "VDO183-M1-L47",
+      "block": "1",
+      "lot_number": "47",
+      "area_m2": "144.00",
+      "frontage_m": "8.00",
+      "depth_m": "18.00"
+    }
+  ],
+  "pending": 79
+}

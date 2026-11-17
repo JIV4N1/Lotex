@@ -1,13 +1,13 @@
 @props(['property'])
-@if($property['availability'] === 'vendido')
+@if(($property['is_lotification'] ?? false) ? $property['development_status'] !== 'consultas' : $property['availability'] === 'vendido')
     <p class="muted">Este terreno ya fue vendido. Explora el catálogo para encontrar otras opciones.</p>
     <a class="btn btn-outline-horizon w-100" href="{{ route('properties.index') }}">Ver otros terrenos</a>
 @else
     <details id="solicitar-visita" class="visit-request" @if(session('visit_requested') || $errors->any()) open @endif>
-        <summary class="btn btn-horizon w-100">Quiero visitar este terreno</summary>
+        <summary class="btn btn-horizon w-100">{{ ($property['is_lotification'] ?? false) ? 'Quiero conocer esta lotificación' : 'Quiero visitar este terreno' }}</summary>
         <div class="pt-4" data-visit-content>
             <p class="small mb-3">Tu visita a <strong>{{ $property['title'] }}</strong></p>
-            @if($property['availability'] === 'apartado')<p class="small muted">Este terreno está apartado. El equipo te confirmará si es posible visitarlo o te propondrá otras opciones.</p>@endif
+            @if(! ($property['is_lotification'] ?? false) && $property['availability'] === 'apartado')<p class="small muted">Este terreno está apartado. El equipo te confirmará si es posible visitarlo o te propondrá otras opciones.</p>@endif
             @if(session('visit_requested'))
                 <div class="alert alert-success mb-0" role="status">
                     <strong>Recibimos tu solicitud.</strong>

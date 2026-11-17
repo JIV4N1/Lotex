@@ -290,7 +290,7 @@ if (visitSection) {
     const title = document.createElement('h2');
     title.id = 'visit-dialog-title';
     title.className = 'h4 mb-0';
-    title.textContent = 'Visita este terreno';
+    title.textContent = trigger.textContent.trim();
     const close = document.createElement('button');
     close.type = 'button';
     close.className = 'visit-dialog-close';
