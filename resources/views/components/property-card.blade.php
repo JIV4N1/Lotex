@@ -11,5 +11,6 @@
             <span class="text-nowrap">@if($property['area'] !== null){{ ($property['is_lotification'] ?? false) ? 'Desde ' : '' }}{{ number_format($property['area']) }} m²@endif</span>
         </div>
         <div class="border-top pt-3 mt-3"><a class="text-link" href="{{ route('properties.show', $property['slug']) }}" aria-label="Ver detalles de {{ $property['title'] }}">{{ ($property['is_lotification'] ?? false) ? 'Conocer lotificación →' : 'Ver terreno →' }}</a></div>
+        <x-visit-link :property="$property" />
     </div>
 </article>

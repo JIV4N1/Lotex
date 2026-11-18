@@ -38,6 +38,9 @@ class ChatCatalog
             $facts['frontage'] = $facts['depth'] = 'Las medidas dependen de la opción elegida. Consulta con un asesor.';
             $facts['availability'] = $p->developmentStatusLabel().'. El asesor confirmará las opciones disponibles.';
         }
+        if ($p->weekly_payment_mxn !== null) {
+            $facts['payment_terms'] .= ' Pagos semanales desde $'.number_format((float) $p->weekly_payment_mxn, 2).' MXN.';
+        }
         $lines = [];
         foreach (array_unique($topics) as $topic) {
             if (isset($facts[$topic])) {

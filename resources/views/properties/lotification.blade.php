@@ -13,6 +13,7 @@
 @if($property['area'] !== null)<div><dt>Superficies desde</dt><dd>{{ number_format($property['area'],2) }} m² @if($property['area_max'] > $property['area']) hasta {{ number_format($property['area_max'],2) }} m² @endif</dd></div>@endif
 @if($property['down_payment'] !== null)<div><dt>Enganche desde</dt><dd>${{ number_format($property['down_payment'],2) }} MXN</dd></div>@endif
 @if($property['monthly_payment'] !== null)<div><dt>Mensualidades desde</dt><dd>${{ number_format($property['monthly_payment'],2) }} MXN</dd></div>@endif
+@if($property['weekly_payment'] !== null)<div><dt>Pagos semanales desde</dt><dd>${{ number_format($property['weekly_payment'],2) }} MXN</dd></div>@endif
 </dl><p class="small muted">Consulta disponibilidad, medidas y condiciones con un asesor.</p>
 <p>Servicios: {{ implode(', ', $property['services']) ?: 'Por confirmar' }}</p>
 <dl class="detail-list">@foreach(['access'=>'Acceso','topography'=>'Topografía','land_use'=>'Uso de suelo','payment_terms'=>'Condiciones generales de pago'] as $key=>$label)<div><dt>{{ $label }}</dt><dd>{{ $property[$key] }}</dd></div>@endforeach</dl>
@@ -21,6 +22,7 @@
 <p class="small muted">Consulta las condiciones particulares de cada lote. Publicar un documento no certifica su validez jurídica.</p></section>
 <section class="detail-section">
 <h2>Plano general</h2>
+<x-visit-link :property="$property" />
 @if($property['site_plan'])
 <a href="{{ $property['site_plan']['src'] }}" target="_blank" rel="noopener noreferrer" aria-label="Abrir plano ampliado">
 <img class="lotification-reference-plan img-fluid rounded" src="{{ $property['site_plan']['src'] }}" alt="{{ $property['site_plan']['alt'] ?: 'Plano de '.$property['title'] }}" loading="lazy"></a>
@@ -31,4 +33,5 @@
 </section>
 <section class="detail-section"><h2>Conoce el lugar en persona</h2><x-visit-request-form :property="$property" /></section>
 </div>
+<x-visit-link :property="$property" floating />
 @endsection

@@ -55,7 +55,7 @@ class PropertyResource extends Resource
         return $schema->components([
             Section::make('Organización de la publicación')->schema([
                 Toggle::make('is_lotification')->label('Es una lotificación (catálogo informativo)')->default(false)->live()->disabled(fn ($record) => $record?->lots()->withTrashed()->exists() ?? false),
-                Select::make('lotification_id')->label('Pertenece a una lotificación')->default(fn () => request()->integer('lotification_id') ?: null)->options(fn () => Property::where('is_lotification', true)->orderBy('title')->pluck('title', 'id'))->searchable()->preload()->live()->helperText('Vacío = terreno independiente. El lote hereda ubicación, fotografías y datos comunes; puedes especificar excepciones.'),
+                Select::make('lotification_id')->visible(fn (Get $get) => ! $get('is_lotification'))->label('Pertenece a una lotificación')->default(fn () => request()->integer('lotification_id') ?: null)->options(fn () => Property::where('is_lotification', true)->orderBy('title')->pluck('title', 'id'))->searchable()->preload()->live()->helperText('Vacío = terreno independiente. El lote hereda ubicación, fotografías y datos comunes; puedes especificar excepciones.'),
                 TextInput::make('block')->label('Manzana')->maxLength(40)->required(fn (Get $get) => (bool) $get('lotification_id'))->visible(fn (Get $get) => (bool) $get('lotification_id')),
                 TextInput::make('lot_number')->label('Número de lote')->maxLength(40)->required(fn (Get $get) => (bool) $get('lotification_id'))->visible(fn (Get $get) => (bool) $get('lotification_id'))->rules(fn (Get $get, $record) => [Rule::unique('properties', 'lot_number')->where('lotification_id', $get('lotification_id'))->where('block', $get('block'))->ignore($record?->id)]),
             ]),
@@ -75,6 +75,7 @@ class PropertyResource extends Resource
                 TextInput::make('area_max_m2')->label('Superficie hasta (m²)')->numeric()->minValue(0.01)->gte('area_m2')->visible(fn (Get $get) => $get('is_lotification')),
                 TextInput::make('down_payment_mxn')->label('Enganche desde (MXN)')->numeric()->minValue(0)->visible(fn (Get $get) => $get('is_lotification')),
                 TextInput::make('monthly_payment_mxn')->label('Mensualidad desde (MXN)')->numeric()->minValue(0)->visible(fn (Get $get) => $get('is_lotification')),
+                TextInput::make('weekly_payment_mxn')->label('Pago semanal desde (MXN)')->numeric()->minValue(0)->maxValue(99999999999999.99)->step('0.01'),
                 Textarea::make('description')->label('Descripción para el visitante')->placeholder('Describe el entorno y lo que conoces del terreno. No es necesario prometer servicios ni usos que no estén confirmados.')->required(fn (Get $get) => $get('publication_status') === 'publicado' && ! $get('lotification_id'))->rows(4)->maxLength(20000)->columnSpanFull(),
             ]),
             Section::make('Cómo llegar y medidas adicionales')->description('Opcional. Puedes dejar estos campos vacíos si aún no tienes la información.')->collapsed()->columns(2)->schema([

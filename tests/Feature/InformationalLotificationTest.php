@@ -14,6 +14,24 @@ class InformationalLotificationTest extends PostgresTestCase
 {
     use BuildsPropertyFixtures;
 
+    public function test_admin_opens_create_page_and_saves_weekly_payment(): void
+    {
+        $zone = $this->makeProperty()->zone_id;
+        $this->actingAs(\App\Models\User::factory()->create(['is_admin' => true]));
+        \Filament\Facades\Filament::setCurrentPanel(\Filament\Facades\Filament::getPanel('admin'));
+        $this->get('/admin/terrenos/create')->assertOk();
+        \Livewire\Livewire::test(\App\Filament\Resources\PropertyResource\Pages\CreateProperty::class)
+            ->fillForm(['is_lotification' => true, 'title' => 'Prueba semanal', 'zone_id' => $zone,
+                'description' => 'Descripción', 'price_mxn' => 75000, 'area_m2' => 144,
+                'weekly_payment_mxn' => 200, 'down_payment_mxn' => 500, 'publication_status' => 'publicado'])
+            ->call('create')->assertHasNoFormErrors();
+        $property = Property::where('title', 'Prueba semanal')->sole();
+        $this->assertSame('200.00', $property->weekly_payment_mxn);
+        $this->assertNull($property->monthly_payment_mxn);
+        $this->get(route('properties.show', $property->slug))->assertOk()->assertSee('Pagos semanales desde')->assertSee('200.00');
+        $this->get('/terrenos')->assertOk()->assertSee(route('properties.show', $property->slug).'#solicitar-visita', false);
+    }
+
     public function test_publication_and_consultation_work_without_individual_lots(): void
     {
         $parent = $this->makeProperty(['is_lotification' => true, 'price_mxn' => 90000, 'area_m2' => 136, 'area_max_m2' => 200]);

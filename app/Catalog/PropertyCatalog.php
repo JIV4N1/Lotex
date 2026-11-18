@@ -83,7 +83,7 @@ class PropertyCatalog
             'zone' => $p->zone->name, 'municipality' => $p->zone->municipality->name, 'state' => $p->zone->municipality->state->name,
             'price' => $p->price_mxn, 'area' => $p->area_m2, 'frontage' => $p->frontage_m, 'depth' => $p->depth_m,
             'price_per_m2' => $p->price_per_m2, 'availability' => $p->availability_status->value,
-            'area_max' => $p->area_max_m2, 'down_payment' => $p->down_payment_mxn, 'monthly_payment' => $p->monthly_payment_mxn,
+            'area_max' => $p->area_max_m2, 'down_payment' => $p->down_payment_mxn, 'monthly_payment' => $p->monthly_payment_mxn, 'weekly_payment' => $p->weekly_payment_mxn,
             'featured' => $p->is_featured, 'date' => $p->created_at->toISOString(),
             'images' => $images ?: [['src' => asset('images/property-placeholder.svg'), 'alt' => 'Fotografía pendiente']],
             'site_plan' => ($plan = $p->images->firstWhere('is_site_plan', true)) ? ['src'=>route('property-images.show', $plan), 'alt'=>$plan->alt_text] : null,
